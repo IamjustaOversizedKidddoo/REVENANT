@@ -1,0 +1,70 @@
+# REVENANT — Platform Stack (docker compose)
+#
+# Phase 1 reality:
+#   Pentest Swarm AI ships its own GoFiber API, Next.js dashboard,
+#   and CLI. Our FIRST job is to verify that stack — so this compose
+#   lifts the INFRA (postgres + redis) and runs the vendored binary.
+#
+#   >>> NOTE <<< It references ./control-plane and ./web which are Phase 2
+#   builds (our hardened control plane + branded dashboard). Until they
+#   exist, the api/web services below stay commented out. The postgres +
+#   redis core is real and used by the CLI today.
+#
+# Lab targets run on a SEPARATE network (see scripts/lab-targets.sh) so an
+# assessment never executes against the platform's own containers.
+name: revenant
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: revenant-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: revenant
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-revenant_dev}
+      POSTGRES_DB: revenant
+      # enable vector extension on first boot
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - revenant-pgdata:/var/lib/postgresql/data
+      - ../deployments/postgres-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    ports:
+      - "127.0.0.1:5432:5432"     # localhost only — never expose
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U revenant"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: revenant-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - revenant-redis:/data
+    ports:
+      - "127.0.0.1:6379:6379"     # localhost only
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Phase 2: our hardened control plane ─────────────────────────────
+  # api:
+  #   image: revenant-api
+  #   build: ../control-plane
+  #   ports: ["127.0.0.1:8080:8080"]
+  #   depends_on: [postgres, redis]
+
+  # ── Phase 2: our branded dashboard ──────────────────────────────────
+  # web:
+  #   image: revenant-web
+  #   build: ../web
+  #   ports: ["127.0.0.1:3000:3000"]
+  #   depends_on: [api]
+
+volumes:
+  revenant-pgdata:
+  revenant-redis:

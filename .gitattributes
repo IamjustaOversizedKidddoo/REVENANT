@@ -1,0 +1,8 @@
+# Keep shell scripts LF so they run on Linux VPS
+*.sh text eol=lf
+# Shell scripts must not get CRLF even on checkout
+* text=auto
+
+# YAML / config
+*.yaml text eol=lf
+*.yml text eol=lf

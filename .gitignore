@@ -1,0 +1,38 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets / credentials
+.env
+*.env
+.env.*
+!.env.example
+**/config.yaml
+!**/config.example.yaml
+*.pem
+*.key
+*.p12
+credentials.json
+
+# Tool artifacts
+nuclei-templates/
+.toolcache/
+*.log
+reports/*/raw/
+
+# Evidence store (kept on server, not in git)
+evidence/
+artifacts/
+
+# Go / Node / Python build
+bin/
+vendor/
+node_modules/
+dist/
+build/
+*.exe
+
+# IDEs
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,55 @@
+# REVENANT — CLI / platform configuration reference
+# Copy to /opt/revenant/configs/config.yaml and edit.
+# All values can also be set via env vars (REVENANT_*).
+
+# ── LLM / AI brain ────────────────────────────────────────────────────
+llm:
+  provider: anthropic          # anthropic | openai | vertex | ollama | together
+  api_key_env: ANTHROPIC_API_KEY
+  model: ""                    # "" = provider default
+  max_tokens_per_campaign: 400000
+  max_cost_usd: 10.00          # hard capex per mission
+  prompt_caching: true
+
+# ── Postgres (blackboard + evidence) ───────────────────────────────────
+database:
+  url: postgres://revenant:revenant_dev@localhost:5432/revenant?sslmode=disable
+
+redis:
+  url: redis://localhost:6379
+
+# ── Enforcement (NON-NEGOTIABLE — cannot be disabled) ─────────────────
+scope:
+  enabled: true
+  enforce_paths: true
+  deny_list: []                # always-denied targets, e.g. ["10.0.0.0/8"]
+  allow_modes: [hackerone, bugcrowd, intigriti, literal]
+  max_parallel_active: 20
+  require_scope_confirm: true  # operator must confirm scope before any run
+
+# ── Safety ─────────────────────────────────────────────────────────────
+safety:
+  non_destructive_by_default: true    # exploitation needs explicit opt-in
+  no_denial_of_service: true
+  no_persistence: true
+  no_exfiltration: true
+  require_destructive_ack: true       # per-mission checkbox
+
+# ── Reporting ──────────────────────────────────────────────────────────
+reporting:
+  formats: [json, md, html, sarif]
+  include_executive_summary: true
+  include_evidence: true
+  include_remediation: true
+  output_dir: /opt/revenant/evidence
+
+# ── Lab targets (Phase 1 verification only) ────────────────────────────
+lab:
+  enabled: true
+  targets:
+    - name: crapi
+      url: http://localhost:30013
+    - name: juiceshop
+      url: http://localhost:3000
+    - name: vampi
+      url: http://localhost:3001
