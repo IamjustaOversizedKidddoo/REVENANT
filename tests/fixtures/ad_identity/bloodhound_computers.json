@@ -1,0 +1,22 @@
+{
+  "data": [
+    {
+      "Properties": {
+        "domain": "REVENANT.LOCAL",
+        "name": "WS-DEV01.REVENANT.LOCAL",
+        "samaccountname": "WS-DEV01$",
+        "distinguishedname": "CN=WS-DEV01,OU=Workstations,DC=REVENANT,DC=LOCAL",
+        "enabled": true,
+        "unconstraineddelegation": true,
+        "is_dc": false,
+        "operatingsystem": "Windows 11 Enterprise"
+      }
+    }
+  ],
+  "meta": {
+    "methods": 0,
+    "type": "computers",
+    "count": 1,
+    "version": 5
+  }
+}

@@ -1,41 +1,34 @@
-# REVENANT — Platform Stack (docker compose)
-#
-# Phase 1 reality:
-#   Pentest Swarm AI ships its own GoFiber API, Next.js dashboard,
-#   and CLI. Our FIRST job is to verify that stack — so this compose
-#   lifts the INFRA (postgres + redis) and runs the vendored binary.
-#
-#   >>> NOTE <<< It references ./control-plane and ./web which are Phase 2
-#   builds (our hardened control plane + branded dashboard). Until they
-#   exist, the api/web services below stay commented out. The postgres +
-#   redis core is real and used by the CLI today.
-#
-# Lab targets run on a SEPARATE network (see scripts/lab-targets.sh) so an
-# assessment never executes against the platform's own containers.
+# REVENANT Platform Stack (Docker Compose)
+# Autonomous AI Red Teaming & Cyber Warfare Platform
+# Production Deployment Appliance
+
 name: revenant
 
 services:
+  # ── 1. PostgreSQL with pgvector (Mission State & Vector Embeddings) ──────────
   postgres:
     image: pgvector/pgvector:pg16
     container_name: revenant-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: revenant
+      POSTGRES_USER: ${POSTGRES_USER:-revenant}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-revenant_dev}
-      POSTGRES_DB: revenant
-      # enable vector extension on first boot
+      POSTGRES_DB: ${POSTGRES_DB:-revenant}
       POSTGRES_INITDB_ARGS: "--data-checksums"
     volumes:
       - revenant-pgdata:/var/lib/postgresql/data
-      - ../deployments/postgres-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./postgres-init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    networks:
+      - revenant-internal
     ports:
-      - "127.0.0.1:5432:5432"     # localhost only — never expose
+      - "127.0.0.1:5432:5432"     # Localhost only - isolated from external network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U revenant"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-revenant}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
+  # ── 2. Redis (Stigmergic Event Queue & Blackboard Cache) ───────────────────
   redis:
     image: redis:7-alpine
     container_name: revenant-redis
@@ -43,27 +36,82 @@ services:
     command: redis-server --appendonly yes
     volumes:
       - revenant-redis:/data
+    networks:
+      - revenant-internal
     ports:
-      - "127.0.0.1:6379:6379"     # localhost only
+      - "127.0.0.1:6379:6379"     # Localhost only
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  # ── Phase 2: our hardened control plane ─────────────────────────────
-  # api:
-  #   image: revenant-api
-  #   build: ../control-plane
-  #   ports: ["127.0.0.1:8080:8080"]
-  #   depends_on: [postgres, redis]
+  # ── 3. REVENANT Control Plane API (FastAPI REST Server) ─────────────────────
+  control-plane:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.control-plane
+    image: revenant-control-plane:latest
+    container_name: revenant-control-plane
+    restart: unless-stopped
+    environment:
+      - REVENANT_ENV=${REVENANT_ENV:-production}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=${POSTGRES_USER:-revenant}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-revenant_dev}
+      - POSTGRES_DB=${POSTGRES_DB:-revenant}
+      - REDIS_HOST=redis
+    volumes:
+      - ../evidence:/app/evidence
+      - ../evidence_remediation:/app/evidence_remediation
+    networks:
+      - revenant-internal
+    ports:
+      - "127.0.0.1:8000:8000"     # Expose control plane API on localhost:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # ── Phase 2: our branded dashboard ──────────────────────────────────
-  # web:
-  #   image: revenant-web
-  #   build: ../web
-  #   ports: ["127.0.0.1:3000:3000"]
-  #   depends_on: [api]
+  # ── 4. REVENANT Autonomous Worker (Multi-Agent Swarm Runner) ───────────────
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.worker
+    image: revenant-worker:latest
+    container_name: revenant-worker
+    restart: unless-stopped
+    environment:
+      - REVENANT_ENV=${REVENANT_ENV:-production}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_USER=${POSTGRES_USER:-revenant}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-revenant_dev}
+      - POSTGRES_DB=${POSTGRES_DB:-revenant}
+      - REDIS_HOST=redis
+      - SOAR_WEBHOOK_URL=${SOAR_WEBHOOK_URL:-}
+      - SOAR_WEBHOOK_SECRET=${SOAR_WEBHOOK_SECRET:-}
+    volumes:
+      - ../evidence:/app/evidence
+      - ../evidence_remediation:/app/evidence_remediation
+      - ../configs:/app/configs:ro
+    networks:
+      - revenant-internal
+    depends_on:
+      control-plane:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+networks:
+  revenant-internal:
+    driver: bridge
+    internal: false # Allow worker outbound scanning while isolating database/cache internally
 
 volumes:
   revenant-pgdata:

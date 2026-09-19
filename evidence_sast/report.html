@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVENANT Report — tests/fixtures/vulnerable_repo</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-heading: #f0f6fc;
+            --critical: #f85149;
+            --high: #db61a2;
+            --medium: #d29922;
+            --low: #58a6ff;
+            --info: #8b949e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
+        h1, h2, h3 {
+            color: var(--text-heading);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .summary-card .count {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-CRITICAL { background: rgba(248,81,73,0.15); color: var(--critical); border: 1px solid var(--critical); }
+        .badge-HIGH { background: rgba(219,97,162,0.15); color: var(--high); border: 1px solid var(--high); }
+        .badge-MEDIUM { background: rgba(210,153,34,0.15); color: var(--medium); border: 1px solid var(--medium); }
+        .badge-LOW { background: rgba(88,166,255,0.15); color: var(--low); border: 1px solid var(--low); }
+        .badge-INFO { background: rgba(139,148,158,0.15); color: var(--info); border: 1px solid var(--info); }
+        .finding-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #090d13;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            color: #79c0ff;
+        }
+        code { font-family: ui-monospace, SFMono-Regular, monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>REVENANT Security Assessment</h1>
+            <p>Target: <strong>tests/fixtures/vulnerable_repo</strong> | Campaign: <code>32f26549-a441-4c21-b16e-c1075d5d5f7a</code> | Generated: 2026-09-17T11:54:45.068602+00:00</p>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card"><div class="count" style="color:var(--critical);">4</div>CRITICAL</div>
+            <div class="summary-card"><div class="count" style="color:var(--high);">2</div>HIGH</div>
+            <div class="summary-card"><div class="count" style="color:var(--medium);">0</div>MEDIUM</div>
+            <div class="summary-card"><div class="count" style="color:var(--low);">0</div>LOW</div>
+            <div class="summary-card"><div class="count" style="color:var(--info);">0</div>INFO</div>
+        </div>
+
+        <h2>Findings (6)</h2>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Candidate Secret Detected: SlackWebhook</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/vulnerable_repo/D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:6</code> | <strong>Tool:</strong> <code>trufflehog</code> </p>
+            <p><strong>Code Location:</strong> <code>D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:6</code></p>
+            <p>TruffleHog detected candidate secret of type 'SlackWebhook' in 'D:\REVENANT\tests\fixtures\vulnerable_repo\config.py' at line 6.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>trufflehog filesystem tests/fixtures/vulnerable_repo --no-update</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Detector: SlackWebhook
+Verified: False
+File: D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:6
+Redacted: htt...XXX</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">SAST Vulnerability: SQL Injection via String Formatting</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/vulnerable_repo/database.py:5</code> | <strong>Tool:</strong> <code>semgrep</code> </p>
+            <p><strong>Code Location:</strong> <code>database.py:5</code></p>
+            <p>SQL query is dynamically constructed using f-string or string concatenation, leading to SQL Injection.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine database.py line 5:
+query = f"SELECT id, username, email FROM users WHERE username = '{username}'"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: database.py:5
+Rule: revenant.sqli.raw-string-interpolation
+Code: query = f"SELECT id, username, email FROM users WHERE username = '{username}'"</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">SAST Vulnerability: Command Injection via os.system / subprocess</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/vulnerable_repo/server.py:7</code> | <strong>Tool:</strong> <code>semgrep</code> </p>
+            <p><strong>Code Location:</strong> <code>server.py:7</code></p>
+            <p>Operating system command executed with unescaped shell inputs, allowing arbitrary Remote Code Execution.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine server.py line 7:
+return os.system(f"ping -n 1 {host}")</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: server.py:7
+Rule: revenant.command-injection.os-system
+Code: return os.system(f"ping -n 1 {host}")</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">SAST Vulnerability: Insecure Deserialization via pickle.loads</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/vulnerable_repo/server.py:11</code> | <strong>Tool:</strong> <code>semgrep</code> </p>
+            <p><strong>Code Location:</strong> <code>server.py:11</code></p>
+            <p>Untrusted data deserialized using pickle, which allows arbitrary code execution via __reduce__.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine server.py line 11:
+return pickle.loads(cookie_payload)</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: server.py:11
+Rule: revenant.insecure-deserialization.pickle
+Code: return pickle.loads(cookie_payload)</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Hardcoded Secret Discovered: Discovered a Slack Webhook, which could lead to unauthorized message posting and data leakage in Slack channels.</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/vulnerable_repo/D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:6</code> | <strong>Tool:</strong> <code>gitleaks</code> </p>
+            <p><strong>Code Location:</strong> <code>D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:6</code></p>
+            <p>Gitleaks identified hardcoded secret pattern 'slack-webhook-url' in file 'D:\REVENANT\tests\fixtures\vulnerable_repo\config.py' at line 6.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>gitleaks detect --source=tests/fixtures/vulnerable_repo --no-git</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:6
+Rule: slack-webhook-url
+Secret Masked: htt...XXX
+Entropy: 3.4009645</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Candidate Secret Detected: Postgres</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/vulnerable_repo/D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:7</code> | <strong>Tool:</strong> <code>trufflehog</code> </p>
+            <p><strong>Code Location:</strong> <code>D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:7</code></p>
+            <p>TruffleHog detected candidate secret of type 'Postgres' in 'D:\REVENANT\tests\fixtures\vulnerable_repo\config.py' at line 7.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>trufflehog filesystem tests/fixtures/vulnerable_repo --no-update</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Detector: Postgres
+Verified: False
+File: D:\REVENANT\tests\fixtures\vulnerable_repo\config.py:7
+Redacted: pos...432</code></pre>
+        </div>
+        
+    </div>
+</body>
+</html>

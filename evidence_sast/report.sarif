@@ -1,0 +1,221 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "REVENANT",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/revenant-security/revenant",
+          "rules": [
+            {
+              "id": "CWE-798",
+              "name": "Candidate_Secret_Detected:_SlackWebhook",
+              "shortDescription": {
+                "text": "Candidate Secret Detected: SlackWebhook"
+              },
+              "fullDescription": {
+                "text": "TruffleHog detected candidate secret of type 'SlackWebhook' in 'D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py' at line 6."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-798"
+              }
+            },
+            {
+              "id": "CWE-89",
+              "name": "SAST_Vulnerability:_SQL_Injection_via_String_Formatting",
+              "shortDescription": {
+                "text": "SAST Vulnerability: SQL Injection via String Formatting"
+              },
+              "fullDescription": {
+                "text": "SQL query is dynamically constructed using f-string or string concatenation, leading to SQL Injection."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-89"
+              }
+            },
+            {
+              "id": "CWE-78",
+              "name": "SAST_Vulnerability:_Command_Injection_via_os.system_/_subprocess",
+              "shortDescription": {
+                "text": "SAST Vulnerability: Command Injection via os.system / subprocess"
+              },
+              "fullDescription": {
+                "text": "Operating system command executed with unescaped shell inputs, allowing arbitrary Remote Code Execution."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-78"
+              }
+            },
+            {
+              "id": "CWE-502",
+              "name": "SAST_Vulnerability:_Insecure_Deserialization_via_pickle.loads",
+              "shortDescription": {
+                "text": "SAST Vulnerability: Insecure Deserialization via pickle.loads"
+              },
+              "fullDescription": {
+                "text": "Untrusted data deserialized using pickle, which allows arbitrary code execution via __reduce__."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-502"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-798",
+          "level": "error",
+          "message": {
+            "text": "Candidate Secret Detected: SlackWebhook: TruffleHog detected candidate secret of type 'SlackWebhook' in 'D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py' at line 6."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "D:/REVENANT/tests/fixtures/vulnerable_repo/config.py"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6,
+                  "snippet": {
+                    "text": "Detector: SlackWebhook | Redacted: htt...XXX"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-89",
+          "level": "error",
+          "message": {
+            "text": "SAST Vulnerability: SQL Injection via String Formatting: SQL query is dynamically constructed using f-string or string concatenation, leading to SQL Injection."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "database.py"
+                },
+                "region": {
+                  "startLine": 5,
+                  "endLine": 5,
+                  "snippet": {
+                    "text": "query = f\"SELECT id, username, email FROM users WHERE username = '{username}'\""
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-78",
+          "level": "error",
+          "message": {
+            "text": "SAST Vulnerability: Command Injection via os.system / subprocess: Operating system command executed with unescaped shell inputs, allowing arbitrary Remote Code Execution."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "server.py"
+                },
+                "region": {
+                  "startLine": 7,
+                  "endLine": 7,
+                  "snippet": {
+                    "text": "return os.system(f\"ping -n 1 {host}\")"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-502",
+          "level": "error",
+          "message": {
+            "text": "SAST Vulnerability: Insecure Deserialization via pickle.loads: Untrusted data deserialized using pickle, which allows arbitrary code execution via __reduce__."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "server.py"
+                },
+                "region": {
+                  "startLine": 11,
+                  "endLine": 11,
+                  "snippet": {
+                    "text": "return pickle.loads(cookie_payload)"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-798",
+          "level": "error",
+          "message": {
+            "text": "Hardcoded Secret Discovered: Discovered a Slack Webhook, which could lead to unauthorized message posting and data leakage in Slack channels.: Gitleaks identified hardcoded secret pattern 'slack-webhook-url' in file 'D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py' at line 6."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "D:/REVENANT/tests/fixtures/vulnerable_repo/config.py"
+                },
+                "region": {
+                  "startLine": 6,
+                  "endLine": 6,
+                  "snippet": {
+                    "text": "Rule: slack-webhook-url | Secret: htt...XXX"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-798",
+          "level": "error",
+          "message": {
+            "text": "Candidate Secret Detected: Postgres: TruffleHog detected candidate secret of type 'Postgres' in 'D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py' at line 7."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "D:/REVENANT/tests/fixtures/vulnerable_repo/config.py"
+                },
+                "region": {
+                  "startLine": 7,
+                  "endLine": 7,
+                  "snippet": {
+                    "text": "Detector: Postgres | Redacted: pos...432"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "technique_id": "T1082",
+    "command": "Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, OSArchitecture, CSName | Format-List",
+    "stdout_snippet": "\n\nCaption        : Microsoft Windows 11 Home Single Language\nVersion        : 10.0.26200\nOSArchitecture : 64-bit\nCSName         : LAPTOP-8IAE4RB0\n\n\n\n",
+    "stderr_snippet": "",
+    "exit_code": 0,
+    "timestamp": "2026-09-19T09:28:16.642457+00:00",
+    "source": "atomic_red_team"
+  },
+  {
+    "technique_id": "T1033",
+    "command": "whoami /all",
+    "stdout_snippet": "\nUSER INFORMATION\n----------------\n\nUser Name             SID                                          \n===================== =============================================\nlaptop-8iae4rb0\\gone0 S-1-5-21-274643508-2647524414-1089345582-1001\n\n\nGROUP INFORMATION\n-----------------\n\nGroup Name                                                    Type             SID                                                                                                        Attributes                         ",
+    "stderr_snippet": "",
+    "exit_code": 0,
+    "timestamp": "2026-09-19T09:28:16.702588+00:00",
+    "source": "atomic_red_team"
+  }
+]

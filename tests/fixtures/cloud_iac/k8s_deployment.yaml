@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: revenant-insecure-workload
+  namespace: default
+  labels:
+    app: insecure-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: insecure-node
+  template:
+    metadata:
+      labels:
+        app: insecure-node
+    spec:
+      # Danger: Host network sharing allows container to sniff host interface traffic
+      hostNetwork: true
+      containers:
+      - name: workload
+        image: node:20-alpine
+        securityContext:
+          # Danger: Privileged container disables namespaces and cgroups
+          privileged: true
+          readOnlyRootFilesystem: false
+        ports:
+        - containerPort: 8080

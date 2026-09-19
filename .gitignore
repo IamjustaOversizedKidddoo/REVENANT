@@ -25,6 +25,11 @@ evidence/
 artifacts/
 
 # Go / Node / Python build
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
 bin/
 vendor/
 node_modules/

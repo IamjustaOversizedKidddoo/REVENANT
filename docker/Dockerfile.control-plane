@@ -1,0 +1,48 @@
+# REVENANT — Control Plane API Dockerfile
+# Hardened, non-root FastAPI application container
+FROM python:3.11-slim as base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app:/app/control-plane
+
+WORKDIR /app
+
+# Install minimal system dependencies & curl for container healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create dedicated non-root application user
+RUN groupadd -g 10001 revenant && \
+    useradd -u 10001 -g revenant -s /bin/bash -m revenant
+
+# Copy project definition and install Python dependencies
+COPY pyproject.toml /app/
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    fastapi>=0.110.0 \
+    uvicorn[standard]>=0.28.0 \
+    pydantic>=2.6.0 \
+    pyyaml>=6.0.1 \
+    requests>=2.31.0 \
+    httpx>=0.27.0
+
+# Copy application source code
+COPY control-plane /app/control-plane
+COPY orchestrator /app/orchestrator
+COPY adapters /app/adapters
+COPY reporting /app/reporting
+COPY revenant.py /app/
+
+# Set ownership to non-root user
+RUN chown -R revenant:revenant /app
+
+USER revenant
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+
+ENTRYPOINT ["uvicorn", "control_plane.api.main:app", "--host", "0.0.0.0", "--port", "8000"]

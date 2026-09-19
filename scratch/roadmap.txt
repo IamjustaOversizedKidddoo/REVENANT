@@ -1,0 +1,14 @@
+Created At: 2026-09-17T18:06:27+05:30
+Completed At: 2026-09-17T18:06:42+05:30
+
+				The command exited with code 1.
+				Output:
+				Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import json; [print(obj.get('content')) for line in open(r'C:\Users\gone0\.gemini\antigravity-ide\brain\7ab12f88-fd7b-437b-9cbf-da1d2c8ae142\.system_generated\logs\transcript.jsonl', encoding='utf-8') if (obj := json.loads(line)) and 'Milestone 2.4' in str(obj.get('content')) and 'Roadmap' in str(obj.get('content'))]
+                  ~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Python314\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 1009-1066: character maps to <undefined>
+

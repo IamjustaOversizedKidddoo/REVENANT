@@ -1,0 +1,46 @@
+Here is the detailed architectural and execution plan for **Phase 2: Breadth (Multi-Domain Attack Surface & Extended Specialist Swarms)**.
+
+---
+
+# REVENANT Phase 2: Architecture & Roadmap
+
+### Primary Objective
+In Phase 1, we established the core foundation: unified Pydantic v2 schemas, 3-layer scope boundary guard, durable SQLite stigmergic blackboard, FastAPI control plane, multi-format reporting (MD, HTML, JSON, OASIS SARIF v2.1.0), and the initial network/web reconnaissance baseline (`httpx`, `nuclei`, `subfinder`, `nmap`, `ffuf`, `schemathesis`).
+
+**Phase 2 expands REVENANT from a perimeter scanner into a multi-domain autonomous offensive platform.** It introduces 4 new specialist swarms covering **Source Code & Secrets (SAST)**, **Deep Web Crawling & Active DAST**, **Cloud Security Posture (AWS/Azure/GCP)**, and **Active Directory / Identity Security**, all unified by an **Attack Graph Correlation Engine** and **MITRE ATT&CK Coverage Mapping**.
+
+```
+                           ┌────────────────────────────────────────────────────────┐
+                           │          Control Plane REST API & CLI Intake           │
+                           │   (3-Layer Scope Boundary Guard & Mission Registry)    │
+                           └───────────────────────────┬────────────────────────────┘
+                                                       │
+                                                       ▼
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │                           STIGMERGIC MISSION BLAC
+<truncated 5747 bytes>
+TML and Markdown reports.
+
+---
+
+## Phase 2 Milestone Breakdown
+
+| Milestone | Focus Area | Deliverables | Verification Standard |
+| :--- | :--- | :--- | :--- |
+| **Milestone 2.1** | **SAST & Secret Auditing** | `SemgrepAdapter`, `GitleaksAdapter`, `TruffleHogAdapter`, `CodeAgent`, Repository intake schema | Live execution on vulnerable repos; detects leaked AWS keys, SQLi, and secret tokens. |
+| **Milestone 2.2** | **Deep Web Crawling & DAST** | `KatanaAdapter`, `ZapAdapter`, `CrawlerAgent`, Form & Endpoint discovery | Deep crawl on Juice Shop / crAPI; crawls SPAs and feeds discovered endpoints into `WebAgent` & `ApiAgent`. |
+| **Milestone 2.3** | **Cloud Security Posture** | `ProwlerAdapter`, `CloudFoxAdapter`, `CheckovAdapter`, `CloudAgent`, Cloud Account schema | Scans cloud manifest / mock AWS localstack or terraform configs; flags IAM and S3 exposure. |
+| **Milestone 2.4** | **Active Directory & Identity** | `BloodHoundAdapter`, `NetExecAdapter`, `CertipyAdapter`, `IdentityAgent` | Parses BloodHound JSON/ZIP dumps; identifies Kerberoasting, delegation, and AD CS flaws. |
+| **Milestone 2.5** | **Attack Graph Engine & MITRE ATT&CK** | Attack Graph schema, edge correlation engine, MITRE ATT&CK heat map generator, updated HTML/SARIF reports | Full multi-agent cascade from code secret → web endpoint → cloud finding with end-to-end graph rendering. |
+
+---
+
+## Plan to Proceed
+
+When you are ready, we will kick off **Milestone 2.1 (SAST & Deep Secret Auditing Swarm)**:
+1. Define the repository asset schemas and rules in [models.py](file:///D:/REVENANT/control-plane/control_plane/schemas/models.py).
+2. Build the `SemgrepAdapter`, `GitleaksAdapter`, and `TruffleHogAdapter` under `adapters/sast/`.
+3. Implement `CodeAgent` in `orchestrator/agents/code_agent.py` to trigger on `AssetType.REPO` and directory targets.
+4. Verify end-to-end against test repositories containing real seeded secrets and vulnerable code.
+
+Let me know if you would like any adjustments to this plan or if you'd like to proceed with Milestone 2.1!

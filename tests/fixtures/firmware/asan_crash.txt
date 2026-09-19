@@ -1,0 +1,12 @@
+=================================================================
+==4210==ERROR: AddressSanitizer: heap-buffer-overflow on address 0x602000000018 at pc 0x000000401234 bp 0x7ffd59218200 sp 0x7ffd592181f8
+READ of size 4 at 0x602000000018 thread T0
+    #0 0x401234 in parse_packet /src/firmware/protocol.c:42
+    #1 0x401567 in fuzz_target /src/firmware/fuzz_target.c:18
+    #2 0x401890 in main /src/firmware/harness.c:95
+0x602000000018 is located 0 bytes to the right of 8-byte region [0x602000000010,0x602000000018)
+allocated by thread T0 here:
+    #0 0x7f9912 in malloc (/lib/x86_64-linux-gnu/libasan.so.6+0x9912)
+    #1 0x401190 in parse_packet /src/firmware/protocol.c:25
+SUMMARY: AddressSanitizer: heap-buffer-overflow /src/firmware/protocol.c:42 in parse_packet
+=================================================================

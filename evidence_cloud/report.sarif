@@ -1,0 +1,326 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "REVENANT",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/revenant-security/revenant",
+          "rules": [
+            {
+              "id": "CWE-798",
+              "name": "Hardcoded_Credential_in_Dockerfile_Directive",
+              "shortDescription": {
+                "text": "Hardcoded Credential in Dockerfile Directive"
+              },
+              "fullDescription": {
+                "text": "Dockerfile embeds sensitive credential or token directly into layer metadata via ENV or ARG directive."
+              },
+              "help": {
+                "text": "Inject secrets dynamically at runtime using secret stores or BuildKit '--mount=type=secret'.",
+                "markdown": "**Remediation Guidance:**\n\nInject secrets dynamically at runtime using secret stores or BuildKit '--mount=type=secret'."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-798"
+              }
+            },
+            {
+              "id": "CWE-732",
+              "name": "Cloud_Misconfiguration:_Publicly_Readable_S3_Bucket_(CIS-2.1.5)",
+              "shortDescription": {
+                "text": "Cloud Misconfiguration: Publicly Readable S3 Bucket (CIS-2.1.5)"
+              },
+              "fullDescription": {
+                "text": "AWS S3 bucket resource configures public read/write ACL, allowing unauthenticated Internet access to bucket data."
+              },
+              "help": {
+                "text": "Set S3 bucket ACL to 'private' and configure aws_s3_bucket_public_access_block with block_public_acls = true.",
+                "markdown": "**Remediation Guidance:**\n\nSet S3 bucket ACL to 'private' and configure aws_s3_bucket_public_access_block with block_public_acls = true."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-732"
+              }
+            },
+            {
+              "id": "CWE-250",
+              "name": "Cloud_Misconfiguration:_Overly_Permissive_Wildcard_IAM_Policy_(CIS-1.16)",
+              "shortDescription": {
+                "text": "Cloud Misconfiguration: Overly Permissive Wildcard IAM Policy (CIS-1.16)"
+              },
+              "fullDescription": {
+                "text": "IAM policy statement grants full administrative privileges ('Action': '*', 'Resource': '*'), violating the principle of least privilege."
+              },
+              "help": {
+                "text": "Scope IAM actions and resources strictly to the required service operations and specific resource ARNs.",
+                "markdown": "**Remediation Guidance:**\n\nScope IAM actions and resources strictly to the required service operations and specific resource ARNs."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-250"
+              }
+            },
+            {
+              "id": "CWE-284",
+              "name": "Cloud_Misconfiguration:_Ingress_Open_to_Internet_(0.0.0.0/0)_(CIS-4.1)",
+              "shortDescription": {
+                "text": "Cloud Misconfiguration: Ingress Open to Internet (0.0.0.0/0) (CIS-4.1)"
+              },
+              "fullDescription": {
+                "text": "Security group allows unrestricted inbound access (0.0.0.0/0) on administrative or database ports."
+              },
+              "help": {
+                "text": "Restrict ingress CIDRs to corporate VPN subnets or private bastion hosts.",
+                "markdown": "**Remediation Guidance:**\n\nRestrict ingress CIDRs to corporate VPN subnets or private bastion hosts."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "HIGH",
+                "cvss": null,
+                "cwe": "CWE-284"
+              }
+            },
+            {
+              "id": "CWE-1188",
+              "name": "Container_Misconfiguration:_Mutable_Base_Image_Tag_(:latest)",
+              "shortDescription": {
+                "text": "Container Misconfiguration: Mutable Base Image Tag (:latest)"
+              },
+              "fullDescription": {
+                "text": "Base container image uses mutable ':latest' tag or omits version tag, leading to non-deterministic builds and supply-chain drift."
+              },
+              "help": {
+                "text": "Pin the base image to an immutable version tag or digest (e.g., node:20-alpine@sha256:...).",
+                "markdown": "**Remediation Guidance:**\n\nPin the base image to an immutable version tag or digest (e.g., node:20-alpine@sha256:...)."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "MEDIUM",
+                "cvss": null,
+                "cwe": "CWE-1188"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-798",
+          "level": "error",
+          "message": {
+            "text": "Hardcoded Credential in Dockerfile Directive: Dockerfile embeds sensitive credential or token directly into layer metadata via ENV or ARG directive."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 7,
+                  "endLine": 7,
+                  "snippet": {
+                    "text": "ENV AWS_ACCESS_KEY_ID=\"AKIAIOSFODNN7EXAMPLE\""
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-798",
+          "level": "error",
+          "message": {
+            "text": "Hardcoded Credential in Dockerfile Directive: Dockerfile embeds sensitive credential or token directly into layer metadata via ENV or ARG directive."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 8,
+                  "endLine": 8,
+                  "snippet": {
+                    "text": "ENV AWS_SECRET_ACCESS_KEY=\"wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY\""
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-732",
+          "level": "error",
+          "message": {
+            "text": "Cloud Misconfiguration: Publicly Readable S3 Bucket (CIS-2.1.5): AWS S3 bucket resource configures public read/write ACL, allowing unauthenticated Internet access to bucket data."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "terraform_aws.tf"
+                },
+                "region": {
+                  "startLine": 18,
+                  "endLine": 18,
+                  "snippet": {
+                    "text": "acl    = \"public-read\""
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-250",
+          "level": "error",
+          "message": {
+            "text": "Cloud Misconfiguration: Overly Permissive Wildcard IAM Policy (CIS-1.16): IAM policy statement grants full administrative privileges ('Action': '*', 'Resource': '*'), violating the principle of least privilege."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "terraform_aws.tf"
+                },
+                "region": {
+                  "startLine": 56,
+                  "endLine": 56,
+                  "snippet": {
+                    "text": "Action   = \"*\""
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-250",
+          "level": "error",
+          "message": {
+            "text": "Kubernetes Misconfiguration: Privileged Container Execution (CIS-5.2): Pod specification declares 'securityContext.privileged: true', disabling container isolation and granting host kernel capabilities."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "k8s_deployment.yaml"
+                },
+                "region": {
+                  "startLine": 25,
+                  "endLine": 25,
+                  "snippet": {
+                    "text": "privileged: true"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-250",
+          "level": "error",
+          "message": {
+            "text": "Container Misconfiguration: Process Runs as Root User: Container execution environment runs with root privileges by default (missing non-root USER instruction), increasing the blast radius of container escape exploits."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 1,
+                  "snippet": {
+                    "text": "# Insecure Test Dockerfile for Container Security Auditing"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-284",
+          "level": "error",
+          "message": {
+            "text": "Cloud Misconfiguration: Ingress Open to Internet (0.0.0.0/0) (CIS-4.1): Security group allows unrestricted inbound access (0.0.0.0/0) on administrative or database ports."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "terraform_aws.tf"
+                },
+                "region": {
+                  "startLine": 43,
+                  "endLine": 43,
+                  "snippet": {
+                    "text": "cidr_blocks = [\"0.0.0.0/0\"]"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-250",
+          "level": "error",
+          "message": {
+            "text": "Kubernetes Misconfiguration: Host Network Namespace Shared: Pod specification enables 'hostNetwork: true', allowing container to snoop and bind directly to host network interfaces."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "k8s_deployment.yaml"
+                },
+                "region": {
+                  "startLine": 19,
+                  "endLine": 19,
+                  "snippet": {
+                    "text": "hostNetwork: true"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-1188",
+          "level": "warning",
+          "message": {
+            "text": "Container Misconfiguration: Mutable Base Image Tag (:latest): Base container image uses mutable ':latest' tag or omits version tag, leading to non-deterministic builds and supply-chain drift."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "Dockerfile"
+                },
+                "region": {
+                  "startLine": 2,
+                  "endLine": 2,
+                  "snippet": {
+                    "text": "FROM node:latest"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

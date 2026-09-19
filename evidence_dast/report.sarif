@@ -1,0 +1,211 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "REVENANT",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/revenant-security/revenant",
+          "rules": [
+            {
+              "id": "CWE-89",
+              "name": "Error-Based_SQL_Injection_in_Parameter_'username'",
+              "shortDescription": {
+                "text": "Error-Based SQL Injection in Parameter 'username'"
+              },
+              "fullDescription": {
+                "text": "Active DAST probe provoked database error message 'sqlite3.operationalerror' using SQL quote injection on parameter 'username'."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": 9.3,
+                "cwe": "CWE-89"
+              }
+            },
+            {
+              "id": "CWE-22",
+              "name": "Path_Traversal_in_Parameter_'file'",
+              "shortDescription": {
+                "text": "Path Traversal in Parameter 'file'"
+              },
+              "fullDescription": {
+                "text": "Active DAST probe read arbitrary system files via directory traversal in parameter 'file'."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": 8.6,
+                "cwe": "CWE-22"
+              }
+            },
+            {
+              "id": "cwe-552",
+              "name": "Generic_Env_File_Disclosure",
+              "shortDescription": {
+                "text": "Generic Env File Disclosure"
+              },
+              "fullDescription": {
+                "text": "A .env file was discovered containing sensitive information like database credentials and tokens. It should not be publicly accessible.\n"
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "HIGH",
+                "cvss": 8.3,
+                "cwe": "cwe-552"
+              }
+            },
+            {
+              "id": "CWE-79",
+              "name": "Reflected_Cross-Site_Scripting_(XSS)_in_Parameter_'query'",
+              "shortDescription": {
+                "text": "Reflected Cross-Site Scripting (XSS) in Parameter 'query'"
+              },
+              "fullDescription": {
+                "text": "Active DAST injection identified unescaped reflection of script payload in parameter 'query' on endpoint 'http://127.0.0.1:3000/search'."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "HIGH",
+                "cvss": 7.1,
+                "cwe": "CWE-79"
+              }
+            },
+            {
+              "id": "CWE-601",
+              "name": "Open_Redirection_in_Parameter_'next'",
+              "shortDescription": {
+                "text": "Open Redirection in Parameter 'next'"
+              },
+              "fullDescription": {
+                "text": "Active DAST probe confirmed unvalidated redirect to external arbitrary domain via parameter 'next'."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "MEDIUM",
+                "cvss": 6.1,
+                "cwe": "CWE-601"
+              }
+            },
+            {
+              "id": "REV-HTTPX-5",
+              "name": "Technologies_Detected_on_http://127.0.0.1:3000",
+              "shortDescription": {
+                "text": "Technologies Detected on http://127.0.0.1:3000"
+              },
+              "fullDescription": {
+                "text": "HTTP probing fingerprinted technologies: Python:3.14.7, BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2"
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "INFO",
+                "cvss": null,
+                "cwe": null
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CWE-89",
+          "level": "error",
+          "message": {
+            "text": "Error-Based SQL Injection in Parameter 'username': Active DAST probe provoked database error message 'sqlite3.operationalerror' using SQL quote injection on parameter 'username'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000/login?username="
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-22",
+          "level": "error",
+          "message": {
+            "text": "Path Traversal in Parameter 'file': Active DAST probe read arbitrary system files via directory traversal in parameter 'file'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000/view?file=intro.txt?file="
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "cwe-552",
+          "level": "error",
+          "message": {
+            "text": "Generic Env File Disclosure: A .env file was discovered containing sensitive information like database credentials and tokens. It should not be publicly accessible.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000/.env"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-79",
+          "level": "error",
+          "message": {
+            "text": "Reflected Cross-Site Scripting (XSS) in Parameter 'query': Active DAST injection identified unescaped reflection of script payload in parameter 'query' on endpoint 'http://127.0.0.1:3000/search'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000/search?query="
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-601",
+          "level": "warning",
+          "message": {
+            "text": "Open Redirection in Parameter 'next': Active DAST probe confirmed unvalidated redirect to external arbitrary domain via parameter 'next'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000/redirect?next=/dashboard?next="
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "REV-HTTPX-5",
+          "level": "none",
+          "message": {
+            "text": "Technologies Detected on http://127.0.0.1:3000: HTTP probing fingerprinted technologies: Python:3.14.7, BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

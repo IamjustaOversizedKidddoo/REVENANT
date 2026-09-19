@@ -1,0 +1,92 @@
+{
+  "operation": "GET /api/v1/users/{id}",
+  "method": "GET",
+  "path_template": "/api/v1/users/{id}",
+  "fingerprint": "96d771ab",
+  "case_id": "se2VTL",
+  "code_sample": "curl -X GET http://localhost:3000/api/v1/users/%F3%B0%9D%8Do%C2%9B%F3%81%9C%B5u%19%19",
+  "sequence": [
+    {
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/users/%F3%B0%9D%8Do%C2%9B%F3%81%9C%B5u%19%19",
+      "url_template": "http://localhost:3000/api/v1/users/{id}",
+      "headers": {
+        "User-Agent": "schemathesis/4.27.3",
+        "Accept-Encoding": "gzip, deflate, zstd",
+        "Accept": "*/*",
+        "Connection": "keep-alive",
+        "X-Schemathesis-TestCaseId": "se2VTL"
+      },
+      "response": {
+        "status_code": 400,
+        "headers": {
+          "server": "BaseHTTP/0.6 Python/3.14.7",
+          "date": "Thu, 17 Sep 2026 09:14:40 GMT"
+        },
+        "body": ""
+      },
+      "link": null,
+      "checks": [
+        {
+          "name": "status_code_conformance",
+          "status": "failure",
+          "message": "Undocumented HTTP status code\n\nReceived: 400\nDocumented: 200, 500"
+        }
+      ],
+      "meta": {
+        "generation": {
+          "time": 0.005812900002638344,
+          "mode": "negative"
+        },
+        "components": {
+          "PATH": "negative"
+        },
+        "phase": {
+          "name": "fuzzing",
+          "data": {
+            "type": "FuzzingPhaseData",
+            "description": "violates `type` at /properties/id (was integer, became string)",
+            "location": "/properties/id",
+            "parameter": "id",
+            "parameter_location": "PATH",
+            "mutations": [
+              {
+                "path": [
+                  "id"
+                ],
+                "parameter_location": "path",
+                "schema_pointer": "/properties/id",
+                "channel": "schema",
+                "operator": "change_type",
+                "keywords": [
+                  "type"
+                ],
+                "parameter": "id",
+                "original_value": "integer",
+                "new_value": "string"
+              }
+            ]
+          }
+        },
+        "pool_draws": [],
+        "pool_misses": [],
+        "semantic_draws": [],
+        "dictionary_draws": [],
+        "constants_draws": [],
+        "raw_containers": {}
+      },
+      "path": "/api/v1/users/{id}",
+      "path_parameters": {
+        "id": "%F3%B0%9D%8Do%C2%9B%F3%81%9C%B5u%19%19"
+      },
+      "query": {},
+      "case_headers": {},
+      "cookies": {},
+      "case_body": {
+        "encoding": "none"
+      },
+      "media_type": null,
+      "parent_index": null
+    }
+  ]
+}

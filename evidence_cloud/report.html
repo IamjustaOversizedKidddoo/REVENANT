@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVENANT Report — tests/fixtures/cloud_iac</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-heading: #f0f6fc;
+            --critical: #f85149;
+            --high: #db61a2;
+            --medium: #d29922;
+            --low: #58a6ff;
+            --info: #8b949e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
+        h1, h2, h3 {
+            color: var(--text-heading);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .summary-card .count {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-CRITICAL { background: rgba(248,81,73,0.15); color: var(--critical); border: 1px solid var(--critical); }
+        .badge-HIGH { background: rgba(219,97,162,0.15); color: var(--high); border: 1px solid var(--high); }
+        .badge-MEDIUM { background: rgba(210,153,34,0.15); color: var(--medium); border: 1px solid var(--medium); }
+        .badge-LOW { background: rgba(88,166,255,0.15); color: var(--low); border: 1px solid var(--low); }
+        .badge-INFO { background: rgba(139,148,158,0.15); color: var(--info); border: 1px solid var(--info); }
+        .finding-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #090d13;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            color: #79c0ff;
+        }
+        code { font-family: ui-monospace, SFMono-Regular, monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>REVENANT Security Assessment</h1>
+            <p>Target: <strong>tests/fixtures/cloud_iac</strong> | Campaign: <code>1057c446-ab68-4f94-aeb7-fc75f4940e48</code> | Generated: 2026-09-17T12:32:38.461923+00:00</p>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card"><div class="count" style="color:var(--critical);">5</div>CRITICAL</div>
+            <div class="summary-card"><div class="count" style="color:var(--high);">3</div>HIGH</div>
+            <div class="summary-card"><div class="count" style="color:var(--medium);">1</div>MEDIUM</div>
+            <div class="summary-card"><div class="count" style="color:var(--low);">0</div>LOW</div>
+            <div class="summary-card"><div class="count" style="color:var(--info);">0</div>INFO</div>
+        </div>
+
+        <h2>Findings (9)</h2>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Hardcoded Credential in Dockerfile Directive</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/Dockerfile:7</code> | <strong>Tool:</strong> <code>trivy</code> </p>
+            <p><strong>Code Location:</strong> <code>Dockerfile:7</code></p>
+            <p>Dockerfile embeds sensitive credential or token directly into layer metadata via ENV or ARG directive.</p>
+            <p><strong>Remediation:</strong> Inject secrets dynamically at runtime using secret stores or BuildKit '--mount=type=secret'.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine Dockerfile line 7:
+ENV AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: Dockerfile:7
+Code: ENV AWS_ACCESS_KEY_ID="AKIAIOSFODNN7EXAMPLE"</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Hardcoded Credential in Dockerfile Directive</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/Dockerfile:8</code> | <strong>Tool:</strong> <code>trivy</code> </p>
+            <p><strong>Code Location:</strong> <code>Dockerfile:8</code></p>
+            <p>Dockerfile embeds sensitive credential or token directly into layer metadata via ENV or ARG directive.</p>
+            <p><strong>Remediation:</strong> Inject secrets dynamically at runtime using secret stores or BuildKit '--mount=type=secret'.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine Dockerfile line 8:
+ENV AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: Dockerfile:8
+Code: ENV AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Cloud Misconfiguration: Publicly Readable S3 Bucket (CIS-2.1.5)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/terraform_aws.tf:18</code> | <strong>Tool:</strong> <code>prowler</code> </p>
+            <p><strong>Code Location:</strong> <code>terraform_aws.tf:18</code></p>
+            <p>AWS S3 bucket resource configures public read/write ACL, allowing unauthenticated Internet access to bucket data.</p>
+            <p><strong>Remediation:</strong> Set S3 bucket ACL to 'private' and configure aws_s3_bucket_public_access_block with block_public_acls = true.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine terraform_aws.tf line 18:
+acl    = "public-read"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: terraform_aws.tf:18
+Misconfiguration: acl    = "public-read"</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Cloud Misconfiguration: Overly Permissive Wildcard IAM Policy (CIS-1.16)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/terraform_aws.tf:56</code> | <strong>Tool:</strong> <code>prowler</code> </p>
+            <p><strong>Code Location:</strong> <code>terraform_aws.tf:56</code></p>
+            <p>IAM policy statement grants full administrative privileges ('Action': '*', 'Resource': '*'), violating the principle of least privilege.</p>
+            <p><strong>Remediation:</strong> Scope IAM actions and resources strictly to the required service operations and specific resource ARNs.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine terraform_aws.tf line 56:
+Action   = "*"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: terraform_aws.tf:56
+Policy defines Action: '*' and Resource: '*'</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Kubernetes Misconfiguration: Privileged Container Execution (CIS-5.2)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/k8s_deployment.yaml:25</code> | <strong>Tool:</strong> <code>prowler</code> </p>
+            <p><strong>Code Location:</strong> <code>k8s_deployment.yaml:25</code></p>
+            <p>Pod specification declares 'securityContext.privileged: true', disabling container isolation and granting host kernel capabilities.</p>
+            <p><strong>Remediation:</strong> Set 'securityContext.privileged: false' and enforce Pod Security Admission standards.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine k8s_deployment.yaml line 25:
+privileged: true</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: k8s_deployment.yaml:25
+Privileged container enabled: privileged: true</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Container Misconfiguration: Process Runs as Root User</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/Dockerfile:1</code> | <strong>Tool:</strong> <code>trivy</code> </p>
+            <p><strong>Code Location:</strong> <code>Dockerfile:1</code></p>
+            <p>Container execution environment runs with root privileges by default (missing non-root USER instruction), increasing the blast radius of container escape exploits.</p>
+            <p><strong>Remediation:</strong> Create a dedicated unprivileged user and declare 'USER <username_or_uid>' before ENTRYPOINT.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine Dockerfile: Missing non-root USER directive.</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: Dockerfile
+Status: Last specified user is 'root'.</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Cloud Misconfiguration: Ingress Open to Internet (0.0.0.0/0) (CIS-4.1)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/terraform_aws.tf:43</code> | <strong>Tool:</strong> <code>prowler</code> </p>
+            <p><strong>Code Location:</strong> <code>terraform_aws.tf:43</code></p>
+            <p>Security group allows unrestricted inbound access (0.0.0.0/0) on administrative or database ports.</p>
+            <p><strong>Remediation:</strong> Restrict ingress CIDRs to corporate VPN subnets or private bastion hosts.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine terraform_aws.tf line 43:
+cidr_blocks = ["0.0.0.0/0"]</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: terraform_aws.tf:43
+Misconfiguration: Ingress open to 0.0.0.0/0</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Kubernetes Misconfiguration: Host Network Namespace Shared</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/k8s_deployment.yaml:19</code> | <strong>Tool:</strong> <code>prowler</code> </p>
+            <p><strong>Code Location:</strong> <code>k8s_deployment.yaml:19</code></p>
+            <p>Pod specification enables 'hostNetwork: true', allowing container to snoop and bind directly to host network interfaces.</p>
+            <p><strong>Remediation:</strong> Remove 'hostNetwork: true' to isolate pod traffic inside container virtual networking.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine k8s_deployment.yaml line 19:
+hostNetwork: true</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: k8s_deployment.yaml:19
+Host network shared: hostNetwork: true</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-MEDIUM">MEDIUM</span>
+                <h3 style="margin:0;">Container Misconfiguration: Mutable Base Image Tag (:latest)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>tests/fixtures/cloud_iac/Dockerfile:2</code> | <strong>Tool:</strong> <code>trivy</code> </p>
+            <p><strong>Code Location:</strong> <code>Dockerfile:2</code></p>
+            <p>Base container image uses mutable ':latest' tag or omits version tag, leading to non-deterministic builds and supply-chain drift.</p>
+            <p><strong>Remediation:</strong> Pin the base image to an immutable version tag or digest (e.g., node:20-alpine@sha256:...).</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Examine Dockerfile line 2:
+FROM node:latest</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>File: Dockerfile:2
+Code: FROM node:latest</code></pre>
+        </div>
+        
+    </div>
+</body>
+</html>

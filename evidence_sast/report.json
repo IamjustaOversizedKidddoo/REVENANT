@@ -1,0 +1,306 @@
+{
+  "campaign_id": "32f26549-a441-4c21-b16e-c1075d5d5f7a",
+  "target": "tests/fixtures/vulnerable_repo",
+  "generated_at": "2026-09-17T11:54:45.068602+00:00",
+  "summary": {
+    "CRITICAL": 4,
+    "HIGH": 2,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "INFO": 0
+  },
+  "assets": [
+    {
+      "id": "328cf5c7-dfaf-4565-b84c-e771ad70bf20",
+      "ip": null,
+      "hostname": "vulnerable_repo",
+      "ports": [],
+      "endpoints": [],
+      "os": null,
+      "cloud_provider": null,
+      "metadata": {
+        "source": "gitleaks",
+        "path": "D:\\REVENANT\\tests\\fixtures\\vulnerable_repo",
+        "secrets_count": 1
+      },
+      "first_seen": "2026-09-17T11:54:42.495341Z",
+      "last_seen": "2026-09-17T11:54:42.495344Z"
+    }
+  ],
+  "findings": [
+    {
+      "id": "a737fbb3-b285-4046-ae20-b1f976b785c3",
+      "title": "Candidate Secret Detected: SlackWebhook",
+      "description": "TruffleHog detected candidate secret of type 'SlackWebhook' in 'D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py' at line 6.",
+      "severity": "CRITICAL",
+      "target": "tests/fixtures/vulnerable_repo",
+      "tool": "trufflehog",
+      "cve": null,
+      "cwe": "CWE-798",
+      "cvss_score": null,
+      "mitre_attack_ids": [],
+      "owasp_category": null,
+      "endpoint": "tests/fixtures/vulnerable_repo/D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py:6",
+      "code_location": {
+        "file_path": "D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py",
+        "start_line": 6,
+        "end_line": null,
+        "snippet": "Detector: SlackWebhook | Redacted: htt...XXX",
+        "commit_hash": null,
+        "author": null
+      },
+      "secret_type": "SlackWebhook",
+      "reproduction_steps": "trufflehog filesystem tests/fixtures/vulnerable_repo --no-update",
+      "evidence": "Detector: SlackWebhook\nVerified: False\nFile: D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py:6\nRedacted: htt...XXX",
+      "raw_data": {
+        "SourceMetadata": {
+          "Data": {
+            "Filesystem": {
+              "file": "D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py",
+              "line": 6
+            }
+          }
+        },
+        "SourceID": 1,
+        "SourceType": 15,
+        "SourceName": "trufflehog - filesystem",
+        "DetectorType": 30,
+        "DetectorName": "SlackWebhook",
+        "DetectorDescription": "Slack webhooks are used to send messages from external sources into Slack channels. If compromised, they can be used to send unauthorized messages.",
+        "DecoderName": "PLAIN",
+        "Verified": false,
+        "VerificationFromCache": false,
+        "Raw": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+        "RawV2": "",
+        "Redacted": "",
+        "ExtraData": {
+          "rotation_guide": "https://howtorotate.com/docs/tutorials/slack-webhook/"
+        },
+        "StructuredData": null,
+        "SecretParts": {
+          "key": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+        }
+      },
+      "discovered_at": "2026-09-17T11:54:45.055840Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "ff706a84-6d58-4fe6-9bb9-f9410cf40d05",
+      "title": "SAST Vulnerability: SQL Injection via String Formatting",
+      "description": "SQL query is dynamically constructed using f-string or string concatenation, leading to SQL Injection.",
+      "severity": "CRITICAL",
+      "target": "tests/fixtures/vulnerable_repo",
+      "tool": "semgrep",
+      "cve": null,
+      "cwe": "CWE-89",
+      "cvss_score": null,
+      "mitre_attack_ids": [],
+      "owasp_category": "A03:2021 - Injection",
+      "endpoint": "tests/fixtures/vulnerable_repo/database.py:5",
+      "code_location": {
+        "file_path": "database.py",
+        "start_line": 5,
+        "end_line": 5,
+        "snippet": "query = f\"SELECT id, username, email FROM users WHERE username = '{username}'\"",
+        "commit_hash": null,
+        "author": null
+      },
+      "secret_type": null,
+      "reproduction_steps": "# Examine database.py line 5:\nquery = f\"SELECT id, username, email FROM users WHERE username = '{username}'\"",
+      "evidence": "File: database.py:5\nRule: revenant.sqli.raw-string-interpolation\nCode: query = f\"SELECT id, username, email FROM users WHERE username = '{username}'\"",
+      "raw_data": {
+        "rule_id": "revenant.sqli.raw-string-interpolation",
+        "line": 5,
+        "code": "query = f\"SELECT id, username, email FROM users WHERE username = '{username}'\""
+      },
+      "discovered_at": "2026-09-17T11:54:45.066738Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "6915697c-7cc9-475d-b219-84ae634c327b",
+      "title": "SAST Vulnerability: Command Injection via os.system / subprocess",
+      "description": "Operating system command executed with unescaped shell inputs, allowing arbitrary Remote Code Execution.",
+      "severity": "CRITICAL",
+      "target": "tests/fixtures/vulnerable_repo",
+      "tool": "semgrep",
+      "cve": null,
+      "cwe": "CWE-78",
+      "cvss_score": null,
+      "mitre_attack_ids": [],
+      "owasp_category": "A03:2021 - Injection",
+      "endpoint": "tests/fixtures/vulnerable_repo/server.py:7",
+      "code_location": {
+        "file_path": "server.py",
+        "start_line": 7,
+        "end_line": 7,
+        "snippet": "return os.system(f\"ping -n 1 {host}\")",
+        "commit_hash": null,
+        "author": null
+      },
+      "secret_type": null,
+      "reproduction_steps": "# Examine server.py line 7:\nreturn os.system(f\"ping -n 1 {host}\")",
+      "evidence": "File: server.py:7\nRule: revenant.command-injection.os-system\nCode: return os.system(f\"ping -n 1 {host}\")",
+      "raw_data": {
+        "rule_id": "revenant.command-injection.os-system",
+        "line": 7,
+        "code": "return os.system(f\"ping -n 1 {host}\")"
+      },
+      "discovered_at": "2026-09-17T11:54:45.067031Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "47613ec0-2b6d-4556-9547-825712e45f09",
+      "title": "SAST Vulnerability: Insecure Deserialization via pickle.loads",
+      "description": "Untrusted data deserialized using pickle, which allows arbitrary code execution via __reduce__.",
+      "severity": "CRITICAL",
+      "target": "tests/fixtures/vulnerable_repo",
+      "tool": "semgrep",
+      "cve": null,
+      "cwe": "CWE-502",
+      "cvss_score": null,
+      "mitre_attack_ids": [],
+      "owasp_category": "A08:2021 - Software and Data Integrity Failures",
+      "endpoint": "tests/fixtures/vulnerable_repo/server.py:11",
+      "code_location": {
+        "file_path": "server.py",
+        "start_line": 11,
+        "end_line": 11,
+        "snippet": "return pickle.loads(cookie_payload)",
+        "commit_hash": null,
+        "author": null
+      },
+      "secret_type": null,
+      "reproduction_steps": "# Examine server.py line 11:\nreturn pickle.loads(cookie_payload)",
+      "evidence": "File: server.py:11\nRule: revenant.insecure-deserialization.pickle\nCode: return pickle.loads(cookie_payload)",
+      "raw_data": {
+        "rule_id": "revenant.insecure-deserialization.pickle",
+        "line": 11,
+        "code": "return pickle.loads(cookie_payload)"
+      },
+      "discovered_at": "2026-09-17T11:54:45.067068Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "55fa9949-1321-4d2a-9c78-77ff41b7f397",
+      "title": "Hardcoded Secret Discovered: Discovered a Slack Webhook, which could lead to unauthorized message posting and data leakage in Slack channels.",
+      "description": "Gitleaks identified hardcoded secret pattern 'slack-webhook-url' in file 'D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py' at line 6.",
+      "severity": "HIGH",
+      "target": "tests/fixtures/vulnerable_repo",
+      "tool": "gitleaks",
+      "cve": null,
+      "cwe": "CWE-798",
+      "cvss_score": null,
+      "mitre_attack_ids": [],
+      "owasp_category": null,
+      "endpoint": "tests/fixtures/vulnerable_repo/D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py:6",
+      "code_location": {
+        "file_path": "D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py",
+        "start_line": 6,
+        "end_line": 6,
+        "snippet": "Rule: slack-webhook-url | Secret: htt...XXX",
+        "commit_hash": "",
+        "author": ""
+      },
+      "secret_type": "slack-webhook-url",
+      "reproduction_steps": "gitleaks detect --source=tests/fixtures/vulnerable_repo --no-git",
+      "evidence": "File: D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py:6\nRule: slack-webhook-url\nSecret Masked: htt...XXX\nEntropy: 3.4009645",
+      "raw_data": {
+        "Description": "Discovered a Slack Webhook, which could lead to unauthorized message posting and data leakage in Slack channels.",
+        "StartLine": 6,
+        "EndLine": 6,
+        "StartColumn": 23,
+        "EndColumn": 99,
+        "Match": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+        "Secret": "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX",
+        "File": "D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py",
+        "SymlinkFile": "",
+        "Commit": "",
+        "Entropy": 3.4009645,
+        "Author": "",
+        "Email": "",
+        "Date": "",
+        "Message": "",
+        "Tags": [],
+        "RuleID": "slack-webhook-url",
+        "Fingerprint": "D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py:slack-webhook-url:6"
+      },
+      "discovered_at": "2026-09-17T11:54:42.495025Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "69c3cf09-6737-4eeb-87d9-03ac717b1ecf",
+      "title": "Candidate Secret Detected: Postgres",
+      "description": "TruffleHog detected candidate secret of type 'Postgres' in 'D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py' at line 7.",
+      "severity": "HIGH",
+      "target": "tests/fixtures/vulnerable_repo",
+      "tool": "trufflehog",
+      "cve": null,
+      "cwe": "CWE-798",
+      "cvss_score": null,
+      "mitre_attack_ids": [],
+      "owasp_category": null,
+      "endpoint": "tests/fixtures/vulnerable_repo/D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py:7",
+      "code_location": {
+        "file_path": "D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py",
+        "start_line": 7,
+        "end_line": null,
+        "snippet": "Detector: Postgres | Redacted: pos...432",
+        "commit_hash": null,
+        "author": null
+      },
+      "secret_type": "Postgres",
+      "reproduction_steps": "trufflehog filesystem tests/fixtures/vulnerable_repo --no-update",
+      "evidence": "Detector: Postgres\nVerified: False\nFile: D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py:7\nRedacted: pos...432",
+      "raw_data": {
+        "SourceMetadata": {
+          "Data": {
+            "Filesystem": {
+              "file": "D:\\REVENANT\\tests\\fixtures\\vulnerable_repo\\config.py",
+              "line": 7
+            }
+          }
+        },
+        "SourceID": 1,
+        "SourceType": 15,
+        "SourceName": "trufflehog - filesystem",
+        "DetectorType": 968,
+        "DetectorName": "Postgres",
+        "DetectorDescription": "Postgres connection string containing credentials",
+        "DecoderName": "PLAIN",
+        "Verified": false,
+        "VerificationError": "lookup db.internal.corp: no such host",
+        "VerificationFromCache": false,
+        "Raw": "postgres://admin:Password123!@db.internal.corp:5432",
+        "RawV2": "postgres://admin:Password123!@db.internal.corp:5432",
+        "Redacted": "",
+        "ExtraData": {
+          "database": "production",
+          "host": "db.internal.corp:5432",
+          "sslmode": "<unset>",
+          "username": "admin"
+        },
+        "StructuredData": null,
+        "SecretParts": {
+          "connection_string": "postgres://admin:Password123!@db.internal.corp:5432"
+        }
+      },
+      "discovered_at": "2026-09-17T11:54:45.055789Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    }
+  ],
+  "metadata": {
+    "iterations": 2
+  }
+}

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVENANT Report — http://127.0.0.1:3000</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-heading: #f0f6fc;
+            --critical: #f85149;
+            --high: #db61a2;
+            --medium: #d29922;
+            --low: #58a6ff;
+            --info: #8b949e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
+        h1, h2, h3 {
+            color: var(--text-heading);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .summary-card .count {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-CRITICAL { background: rgba(248,81,73,0.15); color: var(--critical); border: 1px solid var(--critical); }
+        .badge-HIGH { background: rgba(219,97,162,0.15); color: var(--high); border: 1px solid var(--high); }
+        .badge-MEDIUM { background: rgba(210,153,34,0.15); color: var(--medium); border: 1px solid var(--medium); }
+        .badge-LOW { background: rgba(88,166,255,0.15); color: var(--low); border: 1px solid var(--low); }
+        .badge-INFO { background: rgba(139,148,158,0.15); color: var(--info); border: 1px solid var(--info); }
+        .finding-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #090d13;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            color: #79c0ff;
+        }
+        code { font-family: ui-monospace, SFMono-Regular, monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>REVENANT Security Assessment</h1>
+            <p>Target: <strong>http://127.0.0.1:3000</strong> | Campaign: <code>1a02aa85-e09d-4e97-8266-25b76a839a78</code> | Generated: 2026-09-17T09:12:49.713164+00:00</p>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card"><div class="count" style="color:var(--critical);">0</div>CRITICAL</div>
+            <div class="summary-card"><div class="count" style="color:var(--high);">2</div>HIGH</div>
+            <div class="summary-card"><div class="count" style="color:var(--medium);">0</div>MEDIUM</div>
+            <div class="summary-card"><div class="count" style="color:var(--low);">0</div>LOW</div>
+            <div class="summary-card"><div class="count" style="color:var(--info);">3</div>INFO</div>
+        </div>
+
+        <h2>Findings (5)</h2>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Codeigniter - .env File Discovery</h3>
+            </div>
+            <p><strong>Endpoint:</strong> <code>http://127.0.0.1:3000/.env</code> | <strong>Tool:</strong> <code>nuclei</code> </p>
+            <p>Codeigniter .env file was discovered.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36' 'http://127.0.0.1:3000/.env'</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Reproduction:
+curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36' 'http://127.0.0.1:3000/.env'</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Generic Env File Disclosure</h3>
+            </div>
+            <p><strong>Endpoint:</strong> <code>http://127.0.0.1:3000/.env</code> | <strong>Tool:</strong> <code>nuclei</code> </p>
+            <p>A .env file was discovered containing sensitive information like database credentials and tokens. It should not be publicly accessible.
+</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0' 'http://127.0.0.1:3000/.env'</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Reproduction:
+curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0' 'http://127.0.0.1:3000/.env'</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-INFO">INFO</span>
+                <h3 style="margin:0;">Technologies Detected on http://127.0.0.1:3000</h3>
+            </div>
+            <p><strong>Endpoint:</strong> <code>http://127.0.0.1:3000</code> | <strong>Tool:</strong> <code>httpx</code> </p>
+            <p>HTTP probing fingerprinted technologies: Python:3.14.7, BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2</p>
+            
+            <p><strong>Evidence:</strong></p><pre><code>Status: 200, Title: 'OWASP Juice Shop / crAPI Lab', Tech: ['Python:3.14.7', 'BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2']</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-INFO">INFO</span>
+                <h3 style="margin:0;">OpenAPI - Detect</h3>
+            </div>
+            <p><strong>Endpoint:</strong> <code>http://127.0.0.1:3000/openapi.json</code> | <strong>Tool:</strong> <code>nuclei</code> </p>
+            <p>OpenAPI was detected.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15' 'http://127.0.0.1:3000/openapi.json'</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Reproduction:
+curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.2 Safari/605.1.15' 'http://127.0.0.1:3000/openapi.json'</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-INFO">INFO</span>
+                <h3 style="margin:0;">HTTP Missing Security Headers</h3>
+            </div>
+            <p><strong>Endpoint:</strong> <code>http://127.0.0.1:3000</code> | <strong>Tool:</strong> <code>nuclei</code> </p>
+            <p>This template searches for missing HTTP security headers. The impact of these missing headers can vary.
+</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (CentOS; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36' 'http://127.0.0.1:3000'</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Reproduction:
+curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (CentOS; Linux i686) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36' 'http://127.0.0.1:3000'</code></pre>
+        </div>
+        
+    </div>
+</body>
+</html>

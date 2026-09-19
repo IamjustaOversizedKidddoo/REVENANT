@@ -1,0 +1,15 @@
+[
+  {
+    "PID": 4812,
+    "Process": "svchost.exe",
+    "StartVPN": "0x0000000000bd0000",
+    "EndVPN": "0x0000000000be0000",
+    "Tag": "VadS",
+    "Protection": "PAGE_EXECUTE_READWRITE",
+    "CommitCharge": 16,
+    "PrivCommit": 1,
+    "FileOutput": "Disabled",
+    "HexDump": "4d 5a 90 00 03 00 00 00 04 00 00 00 ff ff 00 00 b8 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00",
+    "Disasm": "0xbd0000: dec ebp\n0xbd0001: pop edx\n0xbd0002: nop\n0xbd0003: add byte ptr [eax], al"
+  }
+]

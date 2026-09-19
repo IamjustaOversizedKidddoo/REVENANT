@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVENANT Report — tests/fixtures/ad_identity</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-heading: #f0f6fc;
+            --critical: #f85149;
+            --high: #db61a2;
+            --medium: #d29922;
+            --low: #58a6ff;
+            --info: #8b949e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
+        h1, h2, h3 {
+            color: var(--text-heading);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .summary-card .count {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-CRITICAL { background: rgba(248,81,73,0.15); color: var(--critical); border: 1px solid var(--critical); }
+        .badge-HIGH { background: rgba(219,97,162,0.15); color: var(--high); border: 1px solid var(--high); }
+        .badge-MEDIUM { background: rgba(210,153,34,0.15); color: var(--medium); border: 1px solid var(--medium); }
+        .badge-LOW { background: rgba(88,166,255,0.15); color: var(--low); border: 1px solid var(--low); }
+        .badge-INFO { background: rgba(139,148,158,0.15); color: var(--info); border: 1px solid var(--info); }
+        .finding-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #090d13;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            color: #79c0ff;
+        }
+        code { font-family: ui-monospace, SFMono-Regular, monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>REVENANT Security Assessment</h1>
+            <p>Target: <strong>tests/fixtures/ad_identity</strong> | Campaign: <code>510e86ae-6566-4eae-bdad-08ebed26caa5</code> | Generated: 2026-09-17T12:43:08.952936+00:00</p>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card"><div class="count" style="color:var(--critical);">3</div>CRITICAL</div>
+            <div class="summary-card"><div class="count" style="color:var(--high);">3</div>HIGH</div>
+            <div class="summary-card"><div class="count" style="color:var(--medium);">0</div>MEDIUM</div>
+            <div class="summary-card"><div class="count" style="color:var(--low);">0</div>LOW</div>
+            <div class="summary-card"><div class="count" style="color:var(--info);">0</div>INFO</div>
+        </div>
+
+        <h2>Findings (6)</h2>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Active Directory: Insecure Unconstrained Delegation on Workload (WS-DEV01.REVENANT.LOCAL)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>REVENANT.LOCAL/WS-DEV01.REVENANT.LOCAL</code> | <strong>Tool:</strong> <code>bloodhound</code> </p>
+            
+            <p>Host or service account 'WS-DEV01.REVENANT.LOCAL' is configured with Unconstrained Delegation (TRUSTED_FOR_DELEGATION). Whenever any domain user or administrator authenticates to this host, their Ticket-Granting Ticket (TGT) is stored in memory and can be harvested.</p>
+            <p><strong>Remediation:</strong> Configure Resource-Based Constrained Delegation (RBCD) or Kerberos Constrained Delegation (KCD). Ensure high-privilege administrative accounts are marked 'Account is sensitive and cannot be delegated'.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Inspect Kerberos delegation flags on WS-DEV01.REVENANT.LOCAL:
+Get-ADComputer -Identity WS-DEV01.REVENANT.LOCAL -Properties TrustedForDelegation</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Object: WS-DEV01.REVENANT.LOCAL
+TrustedForDelegation: True
+is_dc: False</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Active Directory: Kerberoastable Privileged Account (SVC_MSSQL@REVENANT.LOCAL)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>REVENANT.LOCAL/SVC_MSSQL@REVENANT.LOCAL</code> | <strong>Tool:</strong> <code>bloodhound</code> </p>
+            
+            <p>Account 'SVC_MSSQL@REVENANT.LOCAL' has a registered Service Principal Name (SPN) with administrative domain privileges. Any authenticated domain user can request a Kerberos TGS ticket and attempt offline brute-force cracking of the service hash.</p>
+            <p><strong>Remediation:</strong> Migrate service to a Group Managed Service Account (gMSA) with 128-character auto-rotated passwords, enforce AES-256 encryption, or remove administrative rights from the SPN account.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Request TGS ticket and export hash:
+GetUserSPNs.py REVENANT.LOCAL/user:password -request -spn SVC_MSSQL@REVENANT.LOCAL</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Account: SVC_MSSQL@REVENANT.LOCAL
+Domain: REVENANT.LOCAL
+has_spn: True
+admincount: True</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">AD CS Misconfiguration (ESC1): Arbitrary SAN Subject with Client Authentication (VulnerableUserAuth)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>ADCS/VulnerableUserAuth:ESC1</code> | <strong>Tool:</strong> <code>certipy</code> </p>
+            
+            <p>Certificate template 'VulnerableUserAuth' permits enrollees to supply an arbitrary Subject Alternative Name (SAN), grants Client Authentication EKU, and requires no Certificate Manager approval. Any authenticated domain user can enroll for a certificate requesting Domain Admin identity and authenticate via Kerberos PKINIT.</p>
+            <p><strong>Remediation:</strong> In Certificate Templates Console, edit template 'VulnerableUserAuth': Under 'Subject Name' tab, select 'Build from this Active Directory information', or under 'Issuance Requirements' tab, check 'CA certificate manager approval'.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>certipy req -u user@domain -p password -target dc.domain -template VulnerableUserAuth -upn administrator@domain</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Template: VulnerableUserAuth
+Enrollee Supplies Subject: True
+Extended Key Usage: ['Client Authentication', 'Smart Card Logon']
+Requires Manager Approval: False</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Active Directory: AS-REP Roastable Account (JDOE@REVENANT.LOCAL)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>REVENANT.LOCAL/JDOE@REVENANT.LOCAL</code> | <strong>Tool:</strong> <code>bloodhound</code> </p>
+            
+            <p>Account 'JDOE@REVENANT.LOCAL' has Kerberos pre-authentication disabled (DONT_REQ_PREAUTH). Any network attacker can solicit an encrypted AS-REP response from the KDC without supplying credentials and crack the user password offline.</p>
+            <p><strong>Remediation:</strong> Enable Kerberos pre-authentication on account 'JDOE@REVENANT.LOCAL' in Active Directory Users and Computers.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Solicit AS-REP credential hash:
+GetNPUsers.py REVENANT.LOCAL/ -usersfile accounts.txt -format hashcat</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Account: JDOE@REVENANT.LOCAL
+Domain: REVENANT.LOCAL
+dont_req_preauth: True</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">AD CS Misconfiguration (ESC4): Insecure ACL on Certificate Template (InsecureTemplateACL)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>ADCS/InsecureTemplateACL:ESC4</code> | <strong>Tool:</strong> <code>certipy</code> </p>
+            
+            <p>Certificate template 'InsecureTemplateACL' grants unprivileged domain users write permissions (GenericAll, GenericWrite, or WriteDacl). An unprivileged attacker can modify the template configuration to enable ESC1/ESC2 flags and achieve domain elevation.</p>
+            <p><strong>Remediation:</strong> Remove write and modify permissions for unprivileged groups on certificate template 'InsecureTemplateACL'. Restrict DACL to Domain Admins and Enterprise Admins.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Modify template ACL or properties:
+certipy template -u user@domain -p password -target dc.domain -template InsecureTemplateACL -save-old</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Template: InsecureTemplateACL
+Insecure Write Rights granted to unprivileged principals.</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">AD CS Misconfiguration (ESC8): NTLM Relayable Web Enrollment Endpoint (REVENANT-CA01)</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>ADCS/REVENANT-CA01:ESC8</code> | <strong>Tool:</strong> <code>certipy</code> </p>
+            
+            <p>Certificate Authority 'REVENANT-CA01' exposes an HTTP Web Enrollment endpoint without Extended Protection for Authentication (EPA). An attacker can coerce machine accounts via MS-RPRN (SpoolSample) or PetitPotam and relay NTLM authentication to enroll domain controller certificates.</p>
+            <p><strong>Remediation:</strong> Enable Extended Protection for Authentication (EPA) and require SSL on the AD CS Web Enrollment IIS virtual directory.</p>
+            <p><strong>Reproduction:</strong></p><pre><code># Relay coerced NTLM authentication to AD CS:
+ntlmrelayx.py -t http://REVENANT-CA01/certsrv/certfnsh.asp -smb2support --adcs</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>CA: REVENANT-CA01
+Web Enrollment: Enabled
+Extended Protection for Authentication: Disabled</code></pre>
+        </div>
+        
+    </div>
+</body>
+</html>

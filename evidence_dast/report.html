@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVENANT Report — http://127.0.0.1:3000</title>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-heading: #f0f6fc;
+            --critical: #f85149;
+            --high: #db61a2;
+            --medium: #d29922;
+            --low: #58a6ff;
+            --info: #8b949e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 24px;
+            margin-bottom: 32px;
+        }
+        h1, h2, h3 {
+            color: var(--text-heading);
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .summary-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .summary-card .count {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-CRITICAL { background: rgba(248,81,73,0.15); color: var(--critical); border: 1px solid var(--critical); }
+        .badge-HIGH { background: rgba(219,97,162,0.15); color: var(--high); border: 1px solid var(--high); }
+        .badge-MEDIUM { background: rgba(210,153,34,0.15); color: var(--medium); border: 1px solid var(--medium); }
+        .badge-LOW { background: rgba(88,166,255,0.15); color: var(--low); border: 1px solid var(--low); }
+        .badge-INFO { background: rgba(139,148,158,0.15); color: var(--info); border: 1px solid var(--info); }
+        .finding-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        pre {
+            background: #090d13;
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            color: #79c0ff;
+        }
+        code { font-family: ui-monospace, SFMono-Regular, monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>REVENANT Security Assessment</h1>
+            <p>Target: <strong>http://127.0.0.1:3000</strong> | Campaign: <code>3636b656-71bd-4270-a005-9d85c8036fb5</code> | Generated: 2026-09-17T12:17:14.201882+00:00</p>
+        </header>
+
+        <div class="summary-grid">
+            <div class="summary-card"><div class="count" style="color:var(--critical);">2</div>CRITICAL</div>
+            <div class="summary-card"><div class="count" style="color:var(--high);">2</div>HIGH</div>
+            <div class="summary-card"><div class="count" style="color:var(--medium);">1</div>MEDIUM</div>
+            <div class="summary-card"><div class="count" style="color:var(--low);">0</div>LOW</div>
+            <div class="summary-card"><div class="count" style="color:var(--info);">1</div>INFO</div>
+        </div>
+
+        <h2>Findings (6)</h2>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Error-Based SQL Injection in Parameter 'username'</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>http://127.0.0.1:3000/login?username=</code> | <strong>Tool:</strong> <code>dast-fuzzer</code> </p>
+            
+            <p>Active DAST probe provoked database error message 'sqlite3.operationalerror' using SQL quote injection on parameter 'username'.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -s "http://127.0.0.1:3000/login?username=%27%20OR%20%271%27%3D%271"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Database syntax error detected: 'sqlite3.operationalerror'</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-CRITICAL">CRITICAL</span>
+                <h3 style="margin:0;">Path Traversal in Parameter 'file'</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>http://127.0.0.1:3000/view?file=intro.txt?file=</code> | <strong>Tool:</strong> <code>dast-fuzzer</code> </p>
+            
+            <p>Active DAST probe read arbitrary system files via directory traversal in parameter 'file'.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -s "http://127.0.0.1:3000/view?file=..%2F..%2F..%2F..%2Fetc%2Fpasswd"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>System file signature 'root:' detected in response body.</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Generic Env File Disclosure</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>http://127.0.0.1:3000/.env</code> | <strong>Tool:</strong> <code>nuclei</code> </p>
+            
+            <p>A .env file was discovered containing sensitive information like database credentials and tokens. It should not be publicly accessible.
+</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 6.2; rv:140.0) Gecko/20100101 Firefox/140.0' 'http://127.0.0.1:3000/.env'</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Reproduction:
+curl -X 'GET' -d '' -H 'Accept: */*' -H 'Accept-Language: en' -H 'User-Agent: Mozilla/5.0 (Windows NT 6.2; rv:140.0) Gecko/20100101 Firefox/140.0' 'http://127.0.0.1:3000/.env'</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-HIGH">HIGH</span>
+                <h3 style="margin:0;">Reflected Cross-Site Scripting (XSS) in Parameter 'query'</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>http://127.0.0.1:3000/search?query=</code> | <strong>Tool:</strong> <code>dast-fuzzer</code> </p>
+            
+            <p>Active DAST injection identified unescaped reflection of script payload in parameter 'query' on endpoint 'http://127.0.0.1:3000/search'.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -s "http://127.0.0.1:3000/search?query=rev%3Cscript%3Ealert%28%27xss_query%27%29%3C/script%3Erev"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>Reflected payload detected in HTTP response body:
+rev<script>alert('xss_query')</script>rev</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-MEDIUM">MEDIUM</span>
+                <h3 style="margin:0;">Open Redirection in Parameter 'next'</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>http://127.0.0.1:3000/redirect?next=/dashboard?next=</code> | <strong>Tool:</strong> <code>dast-fuzzer</code> </p>
+            
+            <p>Active DAST probe confirmed unvalidated redirect to external arbitrary domain via parameter 'next'.</p>
+            <p><strong>Reproduction:</strong></p><pre><code>curl -i -s "http://127.0.0.1:3000/redirect?next=https%3A%2F%2Frevenant.security.test"</code></pre>
+            <p><strong>Evidence:</strong></p><pre><code>HTTP 302 Redirect with Location: https://revenant.security.test</code></pre>
+        </div>
+        
+        <div class="finding-card">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                <span class="badge badge-INFO">INFO</span>
+                <h3 style="margin:0;">Technologies Detected on http://127.0.0.1:3000</h3>
+            </div>
+            <p><strong>Endpoint / Target:</strong> <code>http://127.0.0.1:3000</code> | <strong>Tool:</strong> <code>httpx</code> </p>
+            
+            <p>HTTP probing fingerprinted technologies: Python:3.14.7, BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2</p>
+            
+            <p><strong>Evidence:</strong></p><pre><code>Status: 200, Title: 'OWASP Juice Shop / crAPI Lab', Tech: ['Python:3.14.7', 'BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2']</code></pre>
+        </div>
+        
+    </div>
+</body>
+</html>

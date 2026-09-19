@@ -1,0 +1,46 @@
+## REVENANT Phase 1: Comprehensive Re-Verification Audit Report
+
+This audit verifies all deliverables across all 5 milestones of Phase 1 using **real live binary invocations, end-to-end multi-agent cascades, durable SQLite persistence, a live FastAPI server, and strict OASIS schema validation**.
+
+---
+
+### 1. Test Suite Re-Run (`pytest -v`)
+
+The full test suite was executed against the active virtual environment (`.venv`). The test count is now **36 passing** (35 from Milestone 5 + 1 added to verify SQLite Blackboard state rehydration):
+
+```text
+============================= test session starts =============================
+platform win32 -- Python 3.14.7, pytest-9.1.1, pluggy-1.6.0 -- D:\REVENANT\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: D:\REVENANT
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, hypothesis-6.168.0, asyncio-1.4.0, schemathesis-4.27.3
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 36 items
+
+tests/test_adapters.py::TestAdapterScopeEnforcement::test_adapter_refuses_out_of_scope_target PASSED [  2%]
+tests/test_adapters.py::TestHTTPXAdapterParsing::test_parse_valid_httpx_json PASSED [  5%]
+tests/test_adapters.py::TestNucleiAdapterParsing::test_parse_nuclei_findings PASSED [  8%]
+tests/test_adapters.py::TestNucleiAdapterParsing::test_parse_malformed_and_empty_output PASSED [ 11%]
+tests/test_api_and_reporting.py::TestControlPlaneAPI::test_health_check PASSED [ 13%]
+tests/test_api_and_reporting.py::TestControlPlaneAPI::test_layer1_scope_intake_refuses_out_of_scope PASSED [ 16%]
+tests/test_api_and_reporting.py::TestControlPlaneAPI::test_in_scope_campaign_and_query_endpoints PASSED [ 19%]
+tests/test_api_and_reporting.py::TestControlPlaneAPI::test_report_endpoint_formats PASSED [ 22%]
+tests/test_api_and_reporting.py::TestReportGenerator::test_sarif_v210_structure PASSED [ 25%]
+tests/test_api_and_reporting.py::TestReportGenerator::test_markdown_ex
+<truncated 14481 bytes>
+ when tools (e.g. Schemathesis) print box characters. | Added `env["PYTHONIOENCODING"]="utf-8"` and `env["PYTHONUTF8"]="1"` to all subprocess executions. |
+| **3** | **Blackboard Datetime Serialization** | `datetime` objects in finding payloads caused `TypeError: Object of type datetime is not JSON serializable` during SQLite persistence. | Updated `model_dump(mode="json")` in `WebAgent` & `ApiAgent`, plus added `default=str` in `Blackboard.post_event`. |
+| **4** | **Nmap Raw Socket Permission** | Default SYN scan (`-sS`) requires Npcap driver on Windows. | Added `-sT` (TCP connect scan) as universal non-root scan in [NmapAdapter](file:///D:/REVENANT/adapters/network/nmap_adapter.py#L31). |
+| **5** | **Ffuf Base64 Keyword Parsing** | Ffuf `-json` output base64-encodes the `FUZZ` parameter keyword (e.g. `LmVudg==`), failing plaintext keyword filters. | Added base64 decoding and URL-path fallback parsing in [FfufAdapter](file:///D:/REVENANT/adapters/web/ffuf_adapter.py#L82-L91). |
+| **6** | **Schemathesis v4 CLI Syntax** | Schemathesis v4 deprecated `--dry-run` and `--output-format=json`. | Updated command flags to `--no-color -n 2` and implemented dual NDJSON/text failure block parsing in [SchemathesisAdapter](file:///D:/REVENANT/adapters/api/schemathesis_adapter.py#L31-L34). |
+| **7** | **ReconAgent Ffuf Integration** | `ReconAgent` originally only ran `httpx` and `subfinder`, omitting web endpoint discovery. | Integrated `FfufAdapter` into `ReconAgent` to index discovered paths into the blackboard. |
+| **8** | **Nuclei Execution Bounding** | Running Nuclei without tags scans ~10,000 templates, causing long timeouts on simple web endpoints. | Added fast default tags (`exposure,misconfig,tech`) and 45s timeout bounding in [WebAgent](file:///D:/REVENANT/orchestrator/agents/web_agent.py#L38-L41). |
+
+---
+
+### Audit Conclusion
+
+Phase 1 is **genuinely complete, rigorously verified, and operational end-to-end**. We are ready to proceed to **Phase 2 (Deep Reconnaissance & Attack Surface Mapping)** whenever you are ready.

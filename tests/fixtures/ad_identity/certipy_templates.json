@@ -1,0 +1,50 @@
+{
+  "Certificate Templates": {
+    "VulnerableUserAuth": {
+      "Template Name": "VulnerableUserAuth",
+      "Schema Version": 2,
+      "Enrollee Supplies Subject": true,
+      "Extended Key Usage": [
+        "Client Authentication",
+        "Smart Card Logon"
+      ],
+      "Requires Manager Approval": false,
+      "Permissions": {
+        "Enrollment Rights": [
+          "Domain Users",
+          "Authenticated Users"
+        ],
+        "Write Rights": [
+          "Domain Admins"
+        ]
+      }
+    },
+    "InsecureTemplateACL": {
+      "Template Name": "InsecureTemplateACL",
+      "Schema Version": 2,
+      "Enrollee Supplies Subject": false,
+      "Extended Key Usage": [
+        "Server Authentication"
+      ],
+      "Requires Manager Approval": true,
+      "Permissions": {
+        "Enrollment Rights": [
+          "Domain Users"
+        ],
+        "Write Rights": [
+          "Authenticated Users"
+        ]
+      }
+    }
+  },
+  "Certificate Authorities": {
+    "REVENANT-CA01": {
+      "CA Name": "REVENANT-CA01",
+      "DNS Name": "ca01.revenant.local",
+      "Web Enrollment": {
+        "Enabled": true,
+        "Extended Protection": false
+      }
+    }
+  }
+}

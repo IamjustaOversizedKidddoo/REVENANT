@@ -1,0 +1,273 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "REVENANT",
+          "version": "2.0.0",
+          "informationUri": "https://github.com/revenant-security/revenant",
+          "rules": [
+            {
+              "id": "CWE-269",
+              "name": "Active_Directory:_Insecure_Unconstrained_Delegation_on_Workload_(WS-DEV01.REVENANT.LOCAL)",
+              "shortDescription": {
+                "text": "Active Directory: Insecure Unconstrained Delegation on Workload (WS-DEV01.REVENANT.LOCAL)"
+              },
+              "fullDescription": {
+                "text": "Host or service account 'WS-DEV01.REVENANT.LOCAL' is configured with Unconstrained Delegation (TRUSTED_FOR_DELEGATION). Whenever any domain user or administrator authenticates to this host, their Ticket-Granting Ticket (TGT) is stored in memory and can be harvested."
+              },
+              "help": {
+                "text": "Configure Resource-Based Constrained Delegation (RBCD) or Kerberos Constrained Delegation (KCD). Ensure high-privilege administrative accounts are marked 'Account is sensitive and cannot be delegated'.",
+                "markdown": "**Remediation Guidance:**\n\nConfigure Resource-Based Constrained Delegation (RBCD) or Kerberos Constrained Delegation (KCD). Ensure high-privilege administrative accounts are marked 'Account is sensitive and cannot be delegated'."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-269",
+                "mitre_attack_ids": [
+                  "T1558.001"
+                ]
+              }
+            },
+            {
+              "id": "CWE-521",
+              "name": "Active_Directory:_Kerberoastable_Privileged_Account_(SVC_MSSQL@REVENANT.LOCAL)",
+              "shortDescription": {
+                "text": "Active Directory: Kerberoastable Privileged Account (SVC_MSSQL@REVENANT.LOCAL)"
+              },
+              "fullDescription": {
+                "text": "Account 'SVC_MSSQL@REVENANT.LOCAL' has a registered Service Principal Name (SPN) with administrative domain privileges. Any authenticated domain user can request a Kerberos TGS ticket and attempt offline brute-force cracking of the service hash."
+              },
+              "help": {
+                "text": "Migrate service to a Group Managed Service Account (gMSA) with 128-character auto-rotated passwords, enforce AES-256 encryption, or remove administrative rights from the SPN account.",
+                "markdown": "**Remediation Guidance:**\n\nMigrate service to a Group Managed Service Account (gMSA) with 128-character auto-rotated passwords, enforce AES-256 encryption, or remove administrative rights from the SPN account."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-521",
+                "mitre_attack_ids": [
+                  "T1558.003"
+                ]
+              }
+            },
+            {
+              "id": "CWE-295",
+              "name": "AD_CS_Misconfiguration_(ESC1):_Arbitrary_SAN_Subject_with_Client_Authentication_(VulnerableUserAuth)",
+              "shortDescription": {
+                "text": "AD CS Misconfiguration (ESC1): Arbitrary SAN Subject with Client Authentication (VulnerableUserAuth)"
+              },
+              "fullDescription": {
+                "text": "Certificate template 'VulnerableUserAuth' permits enrollees to supply an arbitrary Subject Alternative Name (SAN), grants Client Authentication EKU, and requires no Certificate Manager approval. Any authenticated domain user can enroll for a certificate requesting Domain Admin identity and authenticate via Kerberos PKINIT."
+              },
+              "help": {
+                "text": "In Certificate Templates Console, edit template 'VulnerableUserAuth': Under 'Subject Name' tab, select 'Build from this Active Directory information', or under 'Issuance Requirements' tab, check 'CA certificate manager approval'.",
+                "markdown": "**Remediation Guidance:**\n\nIn Certificate Templates Console, edit template 'VulnerableUserAuth': Under 'Subject Name' tab, select 'Build from this Active Directory information', or under 'Issuance Requirements' tab, check 'CA certificate manager approval'."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "CRITICAL",
+                "cvss": null,
+                "cwe": "CWE-295",
+                "mitre_attack_ids": [
+                  "T1649"
+                ]
+              }
+            },
+            {
+              "id": "CWE-287",
+              "name": "Active_Directory:_AS-REP_Roastable_Account_(JDOE@REVENANT.LOCAL)",
+              "shortDescription": {
+                "text": "Active Directory: AS-REP Roastable Account (JDOE@REVENANT.LOCAL)"
+              },
+              "fullDescription": {
+                "text": "Account 'JDOE@REVENANT.LOCAL' has Kerberos pre-authentication disabled (DONT_REQ_PREAUTH). Any network attacker can solicit an encrypted AS-REP response from the KDC without supplying credentials and crack the user password offline."
+              },
+              "help": {
+                "text": "Enable Kerberos pre-authentication on account 'JDOE@REVENANT.LOCAL' in Active Directory Users and Computers.",
+                "markdown": "**Remediation Guidance:**\n\nEnable Kerberos pre-authentication on account 'JDOE@REVENANT.LOCAL' in Active Directory Users and Computers."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "HIGH",
+                "cvss": null,
+                "cwe": "CWE-287",
+                "mitre_attack_ids": [
+                  "T1558.004"
+                ]
+              }
+            },
+            {
+              "id": "CWE-284",
+              "name": "AD_CS_Misconfiguration_(ESC4):_Insecure_ACL_on_Certificate_Template_(InsecureTemplateACL)",
+              "shortDescription": {
+                "text": "AD CS Misconfiguration (ESC4): Insecure ACL on Certificate Template (InsecureTemplateACL)"
+              },
+              "fullDescription": {
+                "text": "Certificate template 'InsecureTemplateACL' grants unprivileged domain users write permissions (GenericAll, GenericWrite, or WriteDacl). An unprivileged attacker can modify the template configuration to enable ESC1/ESC2 flags and achieve domain elevation."
+              },
+              "help": {
+                "text": "Remove write and modify permissions for unprivileged groups on certificate template 'InsecureTemplateACL'. Restrict DACL to Domain Admins and Enterprise Admins.",
+                "markdown": "**Remediation Guidance:**\n\nRemove write and modify permissions for unprivileged groups on certificate template 'InsecureTemplateACL'. Restrict DACL to Domain Admins and Enterprise Admins."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "HIGH",
+                "cvss": null,
+                "cwe": "CWE-284",
+                "mitre_attack_ids": [
+                  "T1078",
+                  "T1649"
+                ]
+              }
+            }
+          ],
+          "supportedTaxonomies": [
+            {
+              "name": "MITRE ATT&CK",
+              "index": 0
+            }
+          ]
+        }
+      },
+      "taxonomies": [
+        {
+          "name": "MITRE ATT&CK",
+          "version": "14",
+          "organization": "MITRE",
+          "shortDescription": {
+            "text": "MITRE ATT&CK Enterprise Matrix v14"
+          },
+          "taxa": [
+            {
+              "id": "T1078",
+              "name": "MITRE ATT&CK Technique T1078"
+            },
+            {
+              "id": "T1187",
+              "name": "MITRE ATT&CK Technique T1187"
+            },
+            {
+              "id": "T1558.001",
+              "name": "MITRE ATT&CK Technique T1558.001"
+            },
+            {
+              "id": "T1558.003",
+              "name": "MITRE ATT&CK Technique T1558.003"
+            },
+            {
+              "id": "T1558.004",
+              "name": "MITRE ATT&CK Technique T1558.004"
+            },
+            {
+              "id": "T1649",
+              "name": "MITRE ATT&CK Technique T1649"
+            }
+          ]
+        }
+      ],
+      "results": [
+        {
+          "ruleId": "CWE-269",
+          "level": "error",
+          "message": {
+            "text": "Active Directory: Insecure Unconstrained Delegation on Workload (WS-DEV01.REVENANT.LOCAL): Host or service account 'WS-DEV01.REVENANT.LOCAL' is configured with Unconstrained Delegation (TRUSTED_FOR_DELEGATION). Whenever any domain user or administrator authenticates to this host, their Ticket-Granting Ticket (TGT) is stored in memory and can be harvested."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "REVENANT.LOCAL/WS-DEV01.REVENANT.LOCAL"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-521",
+          "level": "error",
+          "message": {
+            "text": "Active Directory: Kerberoastable Privileged Account (SVC_MSSQL@REVENANT.LOCAL): Account 'SVC_MSSQL@REVENANT.LOCAL' has a registered Service Principal Name (SPN) with administrative domain privileges. Any authenticated domain user can request a Kerberos TGS ticket and attempt offline brute-force cracking of the service hash."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "REVENANT.LOCAL/SVC_MSSQL@REVENANT.LOCAL"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-295",
+          "level": "error",
+          "message": {
+            "text": "AD CS Misconfiguration (ESC1): Arbitrary SAN Subject with Client Authentication (VulnerableUserAuth): Certificate template 'VulnerableUserAuth' permits enrollees to supply an arbitrary Subject Alternative Name (SAN), grants Client Authentication EKU, and requires no Certificate Manager approval. Any authenticated domain user can enroll for a certificate requesting Domain Admin identity and authenticate via Kerberos PKINIT."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "ADCS/VulnerableUserAuth:ESC1"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-287",
+          "level": "error",
+          "message": {
+            "text": "Active Directory: AS-REP Roastable Account (JDOE@REVENANT.LOCAL): Account 'JDOE@REVENANT.LOCAL' has Kerberos pre-authentication disabled (DONT_REQ_PREAUTH). Any network attacker can solicit an encrypted AS-REP response from the KDC without supplying credentials and crack the user password offline."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "REVENANT.LOCAL/JDOE@REVENANT.LOCAL"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-284",
+          "level": "error",
+          "message": {
+            "text": "AD CS Misconfiguration (ESC4): Insecure ACL on Certificate Template (InsecureTemplateACL): Certificate template 'InsecureTemplateACL' grants unprivileged domain users write permissions (GenericAll, GenericWrite, or WriteDacl). An unprivileged attacker can modify the template configuration to enable ESC1/ESC2 flags and achieve domain elevation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "ADCS/InsecureTemplateACL:ESC4"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CWE-287",
+          "level": "error",
+          "message": {
+            "text": "AD CS Misconfiguration (ESC8): NTLM Relayable Web Enrollment Endpoint (REVENANT-CA01): Certificate Authority 'REVENANT-CA01' exposes an HTTP Web Enrollment endpoint without Extended Protection for Authentication (EPA). An attacker can coerce machine accounts via MS-RPRN (SpoolSample) or PetitPotam and relay NTLM authentication to enroll domain controller certificates."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "ADCS/REVENANT-CA01:ESC8"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

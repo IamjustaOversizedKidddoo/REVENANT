@@ -1,0 +1,45 @@
+{
+  "data": [
+    {
+      "Properties": {
+        "domain": "REVENANT.LOCAL",
+        "name": "SVC_MSSQL@REVENANT.LOCAL",
+        "samaccountname": "svc_mssql",
+        "distinguishedname": "CN=svc_mssql,OU=ServiceAccounts,DC=REVENANT,DC=LOCAL",
+        "enabled": true,
+        "hasspn": true,
+        "serviceprincipalnames": [
+          "MSSQLSvc/db01.revenant.local:1433"
+        ],
+        "admincount": true,
+        "dontreqpreauth": false,
+        "unconstraineddelegation": false,
+        "memberof": [
+          "CN=Domain Admins,CN=Users,DC=REVENANT,DC=LOCAL"
+        ]
+      }
+    },
+    {
+      "Properties": {
+        "domain": "REVENANT.LOCAL",
+        "name": "JDOE@REVENANT.LOCAL",
+        "samaccountname": "jdoe",
+        "distinguishedname": "CN=John Doe,OU=Users,DC=REVENANT,DC=LOCAL",
+        "enabled": true,
+        "hasspn": false,
+        "admincount": false,
+        "dontreqpreauth": true,
+        "unconstraineddelegation": false,
+        "memberof": [
+          "CN=Domain Users,CN=Users,DC=REVENANT,DC=LOCAL"
+        ]
+      }
+    }
+  ],
+  "meta": {
+    "methods": 0,
+    "type": "users",
+    "count": 2,
+    "version": 5
+  }
+}

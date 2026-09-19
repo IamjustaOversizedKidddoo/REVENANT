@@ -1,0 +1,337 @@
+{
+  "campaign_id": "510e86ae-6566-4eae-bdad-08ebed26caa5",
+  "target": "tests/fixtures/ad_identity",
+  "generated_at": "2026-09-17T12:43:08.952936+00:00",
+  "summary": {
+    "CRITICAL": 3,
+    "HIGH": 3,
+    "MEDIUM": 0,
+    "LOW": 0,
+    "INFO": 0
+  },
+  "assets": [
+    {
+      "id": "f29cc61a-32d8-4f63-af4b-02fdd6917d97",
+      "ip": null,
+      "hostname": "WS-DEV01.REVENANT.LOCAL@REVENANT.LOCAL",
+      "ports": [],
+      "endpoints": [],
+      "os": null,
+      "cloud_provider": null,
+      "metadata": {
+        "source": "bloodhound",
+        "identity_name": "WS-DEV01.REVENANT.LOCAL",
+        "domain": "REVENANT.LOCAL",
+        "admin_count": false
+      },
+      "first_seen": "2026-09-17T12:43:08.946533Z",
+      "last_seen": "2026-09-17T12:43:08.946535Z"
+    },
+    {
+      "id": "46132bb8-82d4-4220-b240-6054fa0b7fa3",
+      "ip": null,
+      "hostname": "SVC_MSSQL@REVENANT.LOCAL",
+      "ports": [],
+      "endpoints": [],
+      "os": null,
+      "cloud_provider": null,
+      "metadata": {
+        "source": "bloodhound",
+        "identity_name": "SVC_MSSQL@REVENANT.LOCAL",
+        "domain": "REVENANT.LOCAL",
+        "admin_count": true
+      },
+      "first_seen": "2026-09-17T12:43:08.946584Z",
+      "last_seen": "2026-09-17T12:43:08.946585Z"
+    },
+    {
+      "id": "92a6d980-803d-4a90-b2b0-bcb3d61c7bd6",
+      "ip": null,
+      "hostname": "JDOE@REVENANT.LOCAL",
+      "ports": [],
+      "endpoints": [],
+      "os": null,
+      "cloud_provider": null,
+      "metadata": {
+        "source": "bloodhound",
+        "identity_name": "JDOE@REVENANT.LOCAL",
+        "domain": "REVENANT.LOCAL",
+        "admin_count": false
+      },
+      "first_seen": "2026-09-17T12:43:08.946672Z",
+      "last_seen": "2026-09-17T12:43:08.946673Z"
+    },
+    {
+      "id": "7ba739ad-2c29-456b-bd13-aec064ef25a8",
+      "ip": null,
+      "hostname": "ADCS-TEMPLATE-VulnerableUserAuth",
+      "ports": [],
+      "endpoints": [],
+      "os": null,
+      "cloud_provider": null,
+      "metadata": {
+        "source": "certipy",
+        "template_name": "VulnerableUserAuth",
+        "schema_version": 2
+      },
+      "first_seen": "2026-09-17T12:43:08.952098Z",
+      "last_seen": "2026-09-17T12:43:08.952101Z"
+    },
+    {
+      "id": "87db04d7-dfc8-4303-8cfe-9fa2391002c8",
+      "ip": null,
+      "hostname": "ADCS-TEMPLATE-InsecureTemplateACL",
+      "ports": [],
+      "endpoints": [],
+      "os": null,
+      "cloud_provider": null,
+      "metadata": {
+        "source": "certipy",
+        "template_name": "InsecureTemplateACL",
+        "schema_version": 2
+      },
+      "first_seen": "2026-09-17T12:43:08.952155Z",
+      "last_seen": "2026-09-17T12:43:08.952155Z"
+    }
+  ],
+  "findings": [
+    {
+      "id": "13d76b83-df0e-4cc1-8235-d6dc06929b22",
+      "title": "Active Directory: Insecure Unconstrained Delegation on Workload (WS-DEV01.REVENANT.LOCAL)",
+      "description": "Host or service account 'WS-DEV01.REVENANT.LOCAL' is configured with Unconstrained Delegation (TRUSTED_FOR_DELEGATION). Whenever any domain user or administrator authenticates to this host, their Ticket-Granting Ticket (TGT) is stored in memory and can be harvested.",
+      "severity": "CRITICAL",
+      "target": "tests/fixtures/ad_identity",
+      "tool": "bloodhound",
+      "cve": null,
+      "cwe": "CWE-269",
+      "cvss_score": null,
+      "mitre_attack_ids": [
+        "T1558.001"
+      ],
+      "owasp_category": "A01:2021 - Broken Access Control",
+      "endpoint": "REVENANT.LOCAL/WS-DEV01.REVENANT.LOCAL",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "# Inspect Kerberos delegation flags on WS-DEV01.REVENANT.LOCAL:\nGet-ADComputer -Identity WS-DEV01.REVENANT.LOCAL -Properties TrustedForDelegation",
+      "evidence": "Object: WS-DEV01.REVENANT.LOCAL\nTrustedForDelegation: True\nis_dc: False",
+      "request_proof": null,
+      "response_proof": null,
+      "remediation": "Configure Resource-Based Constrained Delegation (RBCD) or Kerberos Constrained Delegation (KCD). Ensure high-privilege administrative accounts are marked 'Account is sensitive and cannot be delegated'.",
+      "raw_data": {
+        "account": "WS-DEV01.REVENANT.LOCAL",
+        "rule": "unconstrained-delegation",
+        "source_file": "bloodhound_computers.json"
+      },
+      "discovered_at": "2026-09-17T12:43:08.946566Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "86059087-8cb8-4ff0-89ac-f23eebd8e905",
+      "title": "Active Directory: Kerberoastable Privileged Account (SVC_MSSQL@REVENANT.LOCAL)",
+      "description": "Account 'SVC_MSSQL@REVENANT.LOCAL' has a registered Service Principal Name (SPN) with administrative domain privileges. Any authenticated domain user can request a Kerberos TGS ticket and attempt offline brute-force cracking of the service hash.",
+      "severity": "CRITICAL",
+      "target": "tests/fixtures/ad_identity",
+      "tool": "bloodhound",
+      "cve": null,
+      "cwe": "CWE-521",
+      "cvss_score": null,
+      "mitre_attack_ids": [
+        "T1558.003"
+      ],
+      "owasp_category": "A01:2021 - Broken Access Control",
+      "endpoint": "REVENANT.LOCAL/SVC_MSSQL@REVENANT.LOCAL",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "# Request TGS ticket and export hash:\nGetUserSPNs.py REVENANT.LOCAL/user:password -request -spn SVC_MSSQL@REVENANT.LOCAL",
+      "evidence": "Account: SVC_MSSQL@REVENANT.LOCAL\nDomain: REVENANT.LOCAL\nhas_spn: True\nadmincount: True",
+      "request_proof": null,
+      "response_proof": null,
+      "remediation": "Migrate service to a Group Managed Service Account (gMSA) with 128-character auto-rotated passwords, enforce AES-256 encryption, or remove administrative rights from the SPN account.",
+      "raw_data": {
+        "account": "SVC_MSSQL@REVENANT.LOCAL",
+        "rule": "kerberoastable",
+        "source_file": "bloodhound_users.json"
+      },
+      "discovered_at": "2026-09-17T12:43:08.946654Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "e0a93d69-7a12-4b10-8e3f-0505e3ae413c",
+      "title": "AD CS Misconfiguration (ESC1): Arbitrary SAN Subject with Client Authentication (VulnerableUserAuth)",
+      "description": "Certificate template 'VulnerableUserAuth' permits enrollees to supply an arbitrary Subject Alternative Name (SAN), grants Client Authentication EKU, and requires no Certificate Manager approval. Any authenticated domain user can enroll for a certificate requesting Domain Admin identity and authenticate via Kerberos PKINIT.",
+      "severity": "CRITICAL",
+      "target": "tests/fixtures/ad_identity",
+      "tool": "certipy",
+      "cve": null,
+      "cwe": "CWE-295",
+      "cvss_score": null,
+      "mitre_attack_ids": [
+        "T1649"
+      ],
+      "owasp_category": "A01:2021 - Broken Access Control",
+      "endpoint": "ADCS/VulnerableUserAuth:ESC1",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "certipy req -u user@domain -p password -target dc.domain -template VulnerableUserAuth -upn administrator@domain",
+      "evidence": "Template: VulnerableUserAuth\nEnrollee Supplies Subject: True\nExtended Key Usage: ['Client Authentication', 'Smart Card Logon']\nRequires Manager Approval: False",
+      "request_proof": null,
+      "response_proof": null,
+      "remediation": "In Certificate Templates Console, edit template 'VulnerableUserAuth': Under 'Subject Name' tab, select 'Build from this Active Directory information', or under 'Issuance Requirements' tab, check 'CA certificate manager approval'.",
+      "raw_data": {
+        "template": "VulnerableUserAuth",
+        "rule": "ESC1",
+        "data": {
+          "Template Name": "VulnerableUserAuth",
+          "Schema Version": 2,
+          "Enrollee Supplies Subject": true,
+          "Extended Key Usage": [
+            "Client Authentication",
+            "Smart Card Logon"
+          ],
+          "Requires Manager Approval": false,
+          "Permissions": {
+            "Enrollment Rights": [
+              "Domain Users",
+              "Authenticated Users"
+            ],
+            "Write Rights": [
+              "Domain Admins"
+            ]
+          }
+        }
+      },
+      "discovered_at": "2026-09-17T12:43:08.952134Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "5ba1b38c-fcb4-4e75-b5c4-8966bf7972e6",
+      "title": "Active Directory: AS-REP Roastable Account (JDOE@REVENANT.LOCAL)",
+      "description": "Account 'JDOE@REVENANT.LOCAL' has Kerberos pre-authentication disabled (DONT_REQ_PREAUTH). Any network attacker can solicit an encrypted AS-REP response from the KDC without supplying credentials and crack the user password offline.",
+      "severity": "HIGH",
+      "target": "tests/fixtures/ad_identity",
+      "tool": "bloodhound",
+      "cve": null,
+      "cwe": "CWE-287",
+      "cvss_score": null,
+      "mitre_attack_ids": [
+        "T1558.004"
+      ],
+      "owasp_category": "A07:2021 - Identification and Authentication Failures",
+      "endpoint": "REVENANT.LOCAL/JDOE@REVENANT.LOCAL",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "# Solicit AS-REP credential hash:\nGetNPUsers.py REVENANT.LOCAL/ -usersfile accounts.txt -format hashcat",
+      "evidence": "Account: JDOE@REVENANT.LOCAL\nDomain: REVENANT.LOCAL\ndont_req_preauth: True",
+      "request_proof": null,
+      "response_proof": null,
+      "remediation": "Enable Kerberos pre-authentication on account 'JDOE@REVENANT.LOCAL' in Active Directory Users and Computers.",
+      "raw_data": {
+        "account": "JDOE@REVENANT.LOCAL",
+        "rule": "asrep-roastable",
+        "source_file": "bloodhound_users.json"
+      },
+      "discovered_at": "2026-09-17T12:43:08.946693Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "502e50a8-04ea-4d75-896a-801681163f3e",
+      "title": "AD CS Misconfiguration (ESC4): Insecure ACL on Certificate Template (InsecureTemplateACL)",
+      "description": "Certificate template 'InsecureTemplateACL' grants unprivileged domain users write permissions (GenericAll, GenericWrite, or WriteDacl). An unprivileged attacker can modify the template configuration to enable ESC1/ESC2 flags and achieve domain elevation.",
+      "severity": "HIGH",
+      "target": "tests/fixtures/ad_identity",
+      "tool": "certipy",
+      "cve": null,
+      "cwe": "CWE-284",
+      "cvss_score": null,
+      "mitre_attack_ids": [
+        "T1078",
+        "T1649"
+      ],
+      "owasp_category": "A01:2021 - Broken Access Control",
+      "endpoint": "ADCS/InsecureTemplateACL:ESC4",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "# Modify template ACL or properties:\ncertipy template -u user@domain -p password -target dc.domain -template InsecureTemplateACL -save-old",
+      "evidence": "Template: InsecureTemplateACL\nInsecure Write Rights granted to unprivileged principals.",
+      "request_proof": null,
+      "response_proof": null,
+      "remediation": "Remove write and modify permissions for unprivileged groups on certificate template 'InsecureTemplateACL'. Restrict DACL to Domain Admins and Enterprise Admins.",
+      "raw_data": {
+        "template": "InsecureTemplateACL",
+        "rule": "ESC4",
+        "data": {
+          "Template Name": "InsecureTemplateACL",
+          "Schema Version": 2,
+          "Enrollee Supplies Subject": false,
+          "Extended Key Usage": [
+            "Server Authentication"
+          ],
+          "Requires Manager Approval": true,
+          "Permissions": {
+            "Enrollment Rights": [
+              "Domain Users"
+            ],
+            "Write Rights": [
+              "Authenticated Users"
+            ]
+          }
+        }
+      },
+      "discovered_at": "2026-09-17T12:43:08.952178Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    },
+    {
+      "id": "b242729e-3581-4152-9aa7-a2b5b1d36c42",
+      "title": "AD CS Misconfiguration (ESC8): NTLM Relayable Web Enrollment Endpoint (REVENANT-CA01)",
+      "description": "Certificate Authority 'REVENANT-CA01' exposes an HTTP Web Enrollment endpoint without Extended Protection for Authentication (EPA). An attacker can coerce machine accounts via MS-RPRN (SpoolSample) or PetitPotam and relay NTLM authentication to enroll domain controller certificates.",
+      "severity": "HIGH",
+      "target": "tests/fixtures/ad_identity",
+      "tool": "certipy",
+      "cve": null,
+      "cwe": "CWE-287",
+      "cvss_score": null,
+      "mitre_attack_ids": [
+        "T1187",
+        "T1649"
+      ],
+      "owasp_category": "A07:2021 - Identification and Authentication Failures",
+      "endpoint": "ADCS/REVENANT-CA01:ESC8",
+      "code_location": null,
+      "secret_type": null,
+      "reproduction_steps": "# Relay coerced NTLM authentication to AD CS:\nntlmrelayx.py -t http://REVENANT-CA01/certsrv/certfnsh.asp -smb2support --adcs",
+      "evidence": "CA: REVENANT-CA01\nWeb Enrollment: Enabled\nExtended Protection for Authentication: Disabled",
+      "request_proof": null,
+      "response_proof": null,
+      "remediation": "Enable Extended Protection for Authentication (EPA) and require SSL on the AD CS Web Enrollment IIS virtual directory.",
+      "raw_data": {
+        "ca": "REVENANT-CA01",
+        "rule": "ESC8",
+        "data": {
+          "CA Name": "REVENANT-CA01",
+          "DNS Name": "ca01.revenant.local",
+          "Web Enrollment": {
+            "Enabled": true,
+            "Extended Protection": false
+          }
+        }
+      },
+      "discovered_at": "2026-09-17T12:43:08.952203Z",
+      "verified": true,
+      "verified_valid": false,
+      "false_positive": false
+    }
+  ],
+  "metadata": {
+    "iterations": 2
+  }
+}

@@ -1,0 +1,163 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "REVENANT",
+          "version": "1.0.0",
+          "informationUri": "https://github.com/revenant-security/revenant",
+          "rules": [
+            {
+              "id": "cwe-552",
+              "name": "Codeigniter_-_.env_File_Discovery",
+              "shortDescription": {
+                "text": "Codeigniter - .env File Discovery"
+              },
+              "fullDescription": {
+                "text": "Codeigniter .env file was discovered."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "HIGH",
+                "cvss": null,
+                "cwe": "cwe-552"
+              }
+            },
+            {
+              "id": "REV-HTTPX-2",
+              "name": "Technologies_Detected_on_http://127.0.0.1:3000",
+              "shortDescription": {
+                "text": "Technologies Detected on http://127.0.0.1:3000"
+              },
+              "fullDescription": {
+                "text": "HTTP probing fingerprinted technologies: Python:3.14.7, BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2"
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "INFO",
+                "cvss": null,
+                "cwe": null
+              }
+            },
+            {
+              "id": "cwe-200",
+              "name": "OpenAPI_-_Detect",
+              "shortDescription": {
+                "text": "OpenAPI - Detect"
+              },
+              "fullDescription": {
+                "text": "OpenAPI was detected."
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "INFO",
+                "cvss": null,
+                "cwe": "cwe-200"
+              }
+            },
+            {
+              "id": "cwe-693",
+              "name": "HTTP_Missing_Security_Headers",
+              "shortDescription": {
+                "text": "HTTP Missing Security Headers"
+              },
+              "fullDescription": {
+                "text": "This template searches for missing HTTP security headers. The impact of these missing headers can vary.\n"
+              },
+              "helpUri": "https://revenant.security",
+              "properties": {
+                "severity": "INFO",
+                "cvss": null,
+                "cwe": "cwe-693"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "cwe-552",
+          "level": "error",
+          "message": {
+            "text": "Codeigniter - .env File Discovery: Codeigniter .env file was discovered."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000/.env"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "cwe-552",
+          "level": "error",
+          "message": {
+            "text": "Generic Env File Disclosure: A .env file was discovered containing sensitive information like database credentials and tokens. It should not be publicly accessible.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000/.env"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "REV-HTTPX-2",
+          "level": "none",
+          "message": {
+            "text": "Technologies Detected on http://127.0.0.1:3000: HTTP probing fingerprinted technologies: Python:3.14.7, BaseHTTP/0.6 Python/3.14.7 Sanctioned-Lab/1.0 Express/4.18.2"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "cwe-200",
+          "level": "none",
+          "message": {
+            "text": "OpenAPI - Detect: OpenAPI was detected."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000/openapi.json"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "cwe-693",
+          "level": "none",
+          "message": {
+            "text": "HTTP Missing Security Headers: This template searches for missing HTTP security headers. The impact of these missing headers can vary.\n"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "http://127.0.0.1:3000"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
