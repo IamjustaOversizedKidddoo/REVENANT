@@ -41,3 +41,15 @@ build/
 .idea/
 .vscode/
 *.swp
+# Scratch, generated output, and per-run evidence dirs (kept local, not in git)
+scratch/
+brag-output/
+evidence_*/
+
+# Python editable-install / packaging metadata
+*.egg-info/
+
+# Local agent caches and nested/sibling project checkouts (their own repos)
+.agents/
+/REVENANT/
+/THE-WATCHDOGS/

@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REVENANT — The Universal Study Companion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2430;
+      --border: #30363d;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --accent3: #d29922;
+      --accent4: #f78166;
+      --accent5: #bc8cff;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --text-dim: #6e7681;
+      --heading-font: 'Outfit', sans-serif;
+      --body-font: 'Inter', sans-serif;
+      --mono-font: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body-font);
+      font-size: 16px;
+      line-height: 1.75;
+      font-weight: 400;
+    }
+
+    /* ── Layout ── */
+    .page-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 60px 32px 120px;
+    }
+
+    /* ── Hero Header ── */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 64px;
+    }
+    .hero-tag {
+      display: inline-block;
+      font-family: var(--mono-font);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(88,166,255,0.08);
+      border: 1px solid rgba(88,166,255,0.2);
+      border-radius: 20px;
+      padding: 5px 16px;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: var(--heading-font);
+      font-size: clamp(2.4rem, 5vw, 3.6rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #e6edf3 0%, #58a6ff 60%, #bc8cff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 20px;
+    }
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ── Table of Contents ── */
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 64px;
+    }
+    .toc-title {
+      font-family: var(--heading-font);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .toc ol {
+      padding-left: 20px;
+      columns: 2;
+      column-gap: 32px;
+    }
+    .toc li { margin-bottom: 6px; break-inside: avoid; }
+    .toc a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+    .toc a:hover { color: var(--accent); }
+
+    /* ── Sections ── */
+    section {
+      margin-bottom: 80px;
+    }
+
+    /* ── Headings ── */
+    h2 {
+      font-family: var(--heading-font);
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    h2 .section-num {
+      font-family: var(--mono-font);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--accent);
+      background: rgba(88,166,255,0.1);
+      border: 1px solid rgba(88,166,255,0.2);
+      border-radius: 6px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+    h3 {
+      font-family: var(--heading-font);
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 36px 0 12px;
+    }
+    h4 {
+      font-family: var(--body-font);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin: 28px 0 8px;
+    }
+
+    /* ── Paragraphs ── */
+    p {
+      color: #c9d1d9;
+      font-size: 0.975rem;
+      margin-bottom: 16px;
+      line-height: 1.8;
+    }
+    p strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── Tool Cards ── */
+    .tool-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      transition: border-color 0.2s;
+    }
+    .tool-card:hover { border-left-color: var(--accent5); }
+    .tool-card .tool-name {
+      font-family: var(--heading-font);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .tool-card .tool-tag {
+      display: inline-block;
+      font-family: var(--mono-font);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--accent2);
+      background: rgba(63,185,80,0.08);
+      border: 1px solid rgba(63,185,80,0.2);
+      border-radius: 4px;
+      padding: 2px 8px;
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+    .tool-card p { margin-bottom: 0; font-size: 0.935rem; }
+
+    /* ── Profile Cards ── */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 28px 0;
+    }
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .profile-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .profile-card .profile-name {
+      font-family: var(--mono-font);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+    .profile-card h4 {
+      font-family: var(--heading-font);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 10px;
+    }
+    .profile-card p { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 10px; }
+    .profile-card .tools-used {
+      font-family: var(--mono-font);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+    .profile-full { grid-column: 1 / -1; border-color: var(--accent5); }
+    .profile-full .profile-name { color: var(--accent5); }
+
+    /* ── Diagrams ── */
+    .diagram-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px 24px;
+      margin: 28px 0;
+      overflow-x: auto;
+      text-align: center;
+    }
+    .diagram-caption {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 12px;
+      font-style: italic;
+    }
+
+    /* ── Info Boxes ── */
+    .callout {
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin: 24px 0;
+      border-left: 4px solid;
+    }
+    .callout.info { background: rgba(88,166,255,0.07); border-color: var(--accent); }
+    .callout.success { background: rgba(63,185,80,0.07); border-color: var(--accent2); }
+    .callout.warning { background: rgba(210,153,34,0.07); border-color: var(--accent3); }
+    .callout p { margin: 0; font-size: 0.93rem; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 24px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    thead tr { background: var(--surface2); }
+    th {
+      font-family: var(--heading-font);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: #c9d1d9;
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    td strong { color: var(--text); }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ── Steps ── */
+    .steps { margin: 24px 0; }
+    .step {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent5));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--heading-font);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .step-body { flex: 1; padding-top: 6px; }
+    .step-body strong { color: var(--text); font-size: 0.95rem; }
+    .step-body p { font-size: 0.9rem; color: var(--text-muted); margin: 4px 0 0; }
+
+    /* ── Finding Record ── */
+    .finding-record {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 20px 0;
+      font-family: var(--mono-font);
+      font-size: 0.85rem;
+    }
+    .finding-record .field { display: flex; gap: 12px; margin-bottom: 8px; }
+    .finding-record .field:last-child { margin-bottom: 0; }
+    .finding-record .key { color: var(--accent); min-width: 120px; }
+    .finding-record .val { color: var(--text-muted); }
+
+    /* ── Glossary ── */
+    .glossary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .glossary-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+    }
+    .glossary-item .gterm {
+      font-family: var(--heading-font);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .glossary-item .gdef {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    /* ── Domain Section Dividers ── */
+    .domain-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 40px 0 20px;
+      padding: 14px 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .domain-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .domain-icon.net { background: rgba(88,166,255,0.15); }
+    .domain-icon.web { background: rgba(63,185,80,0.15); }
+    .domain-icon.cloud { background: rgba(210,153,34,0.15); }
+    .domain-icon.id { background: rgba(247,129,102,0.15); }
+    .domain-icon.fm { background: rgba(188,140,255,0.15); }
+    .domain-header h3 { margin: 0; font-size: 1rem; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding-top: 60px;
+      border-top: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      font-family: var(--mono-font);
+    }
+
+    @media (max-width: 640px) {
+      .profile-grid { grid-template-columns: 1fr; }
+      .glossary-grid { grid-template-columns: 1fr; }
+      .toc ol { columns: 1; }
+      .page-wrapper { padding: 32px 18px 80px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ── HERO ── -->
+  <div class="hero">
+    <div class="hero-tag">Study Companion v2.0</div>
+    <h1>REVENANT</h1>
+    <p class="hero-subtitle">A complete, plain-English guide for anyone — technical or not — to understand everything about REVENANT: what it is, how it thinks, every tool it uses, and what it ultimately produces.</p>
+  </div>
+
+  <!-- ── TABLE OF CONTENTS ── -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ol>
+      <li><a href="#s1">What is REVENANT?</a></li>
+      <li><a href="#s2">The Safety Rule: Scope</a></li>
+      <li><a href="#s3">The Blackboard and the Swarm</a></li>
+      <li><a href="#s4">Mission Lifecycle</a></li>
+      <li><a href="#s5">The Five Mission Profiles</a></li>
+      <li><a href="#s6">Every Tool Explained</a></li>
+      <li><a href="#s7">The Adapter System</a></li>
+      <li><a href="#s8">Attack Graphs and Choke Points</a></li>
+      <li><a href="#s9">Autonomous Remediation</a></li>
+      <li><a href="#s10">How You Interact With REVENANT</a></li>
+      <li><a href="#s11">Final Deliverables</a></li>
+      <li><a href="#s12">The Full Mental Model</a></li>
+      <li><a href="#s13">Glossary</a></li>
+    </ol>
+  </div>
+
+  <!-- ── SECTION 1 ── -->
+  <section id="s1">
+    <h2><span class="section-num">01</span> What is REVENANT?</h2>
+    <p>Imagine you run a company with a website, servers, a corporate office network, and a cloud storage account full of customer data. You hire the best security locks, firewalls, and monitoring cameras money can buy. But the real question is: <strong>have you actually tested whether any of those protections can be bypassed?</strong></p>
+    <p>In the real world, organizations hire specialized teams called <strong>Red Teams</strong> — ethical, authorized security professionals whose entire job is to think and act exactly like a real attacker. They try to break in, expose the weak points, and hand the company a blueprint for fixing them before a criminal does it first.</p>
+    <p>The problem with human Red Teams is that they are expensive, slow, and limited. A three-person team cannot simultaneously audit a web application, a cloud account, an internal office network, and a mobile API at the same time. Real enterprise environments are too large and change too fast.</p>
+    <div class="callout info">
+      <p><strong>REVENANT</strong> is an autonomous artificial intelligence platform that acts as an entire Red Team operating simultaneously. It never sleeps, never misses a scan, legally and safely tests every corner of an enterprise's technology stack, and at the end, not only reports the problems but generates the ready-to-use code to fix them. It is an attacker, a detective, an intelligence analyst, and a repair engineer all bundled into one automated system.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 2 ── -->
+  <section id="s2">
+    <h2><span class="section-num">02</span> The Unbreakable Safety Rule: Scope and Authorization</h2>
+    <p>The most important principle in offensive security is this: <strong>you can only test systems you are authorized to test</strong>. Testing someone else's computer without written permission is illegal in every country on earth.</p>
+    <p>REVENANT is built around this rule at its very core. It operates with a concept called the <strong>Scope Manifest</strong> — a digitally signed, legally binding document that the operator provides before any assessment begins. This document lists exactly which web addresses, server IP ranges, cloud accounts, and internal networks are approved for testing. Nothing outside this list will ever be touched, no matter what.</p>
+    <p>The <strong>Scope Engine</strong> acts as the permanent gatekeeper of the entire platform. Before any agent, tool, or script sends a single network packet, it asks the Scope Engine: "Is this target on the approved list?" If the answer is no, the action is halted immediately and logged as a scope violation. This happens automatically, even mid-mission, so no human error can accidentally cause an unauthorized test.</p>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+flowchart TD
+    A[Operator submits Target and Scope Manifest] --> B{Scope Engine checks the target}
+    B -- Not on approved list --> C[Hard Stop - Action blocked and logged]
+    B -- On approved list --> D[Mission proceeds safely and legally]
+    D --> E[Every sub-action re-checks scope before running]
+    E --> B
+      </div>
+      <div class="diagram-caption">Every single action, at every level, passes through the Scope Engine before execution.</div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 3 ── -->
+  <section id="s3">
+    <h2><span class="section-num">03</span> How REVENANT Thinks: The Blackboard and the Swarm</h2>
+    <p>Most software programs follow a fixed script — Step 1 runs, then Step 2, then Step 3. If Step 2 encounters something unexpected, the entire process stalls or crashes.</p>
+    <p>REVENANT is fundamentally different. It is built on an architecture called a <strong>Stigmergic Multi-Agent Blackboard System</strong>. Picture a hospital emergency room. No single doctor manages every procedure by personally directing each nurse one by one. Instead, there is a central patient chart — the <strong>Blackboard</strong> — that every specialist can read and write to. The cardiologist adds their findings, the radiologist sees them and acts, the anaesthesiologist steps in only when relevant. No one gives orders to anyone else. They all respond to the evolving state of the shared record.</p>
+    <p>REVENANT's <strong>Agents</strong> are those expert specialists. When the mission begins, the orchestrator writes the objective on the Blackboard. Agents continuously monitor it and act the moment they see something relevant to their specialization. They post findings back to the board, triggering the next relevant agent, and the cycle continues until the mission is complete.</p>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+flowchart TD
+    ORCH[Orchestrator writes mission goal] --> BB[Central Blackboard]
+    BB --> RECON[Recon Agent runs Nmap and Subfinder]
+    RECON --> BB2[Blackboard updated with open ports]
+    BB2 --> WEB[Web Agent runs Katana and Nuclei]
+    WEB --> BB3[Blackboard updated with web vulnerability]
+    BB3 --> CLOUD[Cloud Agent cross-checks cloud posture]
+    CLOUD --> BB4[Blackboard updated with cloud finding]
+    BB4 --> GRAPH[Attack Graph Engine connects all findings]
+    GRAPH --> BB5[Blackboard updated with choke points]
+    BB5 --> REMEDIATE[Remediation Engine generates fix code]
+    REMEDIATE --> REPORT[Reporting Engine compiles deliverables]
+      </div>
+      <div class="diagram-caption">Agents never call each other directly — they communicate entirely through the shared Blackboard.</div>
+    </div>
+    <p>This design has three major advantages. First, <strong>agents run in parallel</strong> — the web agent and cloud agent work simultaneously without waiting for each other. Second, <strong>the mission adapts dynamically</strong> — if the recon agent unexpectedly discovers a Kubernetes cluster nobody knew about, the cloud agent steps in automatically. Third, <strong>no single failure stops the mission</strong> — if one agent errors, the others continue and post their findings independently.</p>
+  </section>
+
+  <!-- ── SECTION 4 ── -->
+  <section id="s4">
+    <h2><span class="section-num">04</span> The Complete Lifecycle of a Security Mission</h2>
+    <p>Every REVENANT assessment moves through five distinct phases. Here is exactly what happens at each stage.</p>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+sequenceDiagram
+    actor Op as Operator
+    participant BB as Blackboard
+    participant SW as Agent Swarm
+    participant AG as Attack Graph Engine
+    participant RE as Remediation Engine
+    participant RP as Reporting Engine
+
+    Op->>BB: Submit target, scope manifest, and mission profile
+    BB->>SW: Phase 1 - Reconnaissance begins
+    SW->>BB: Discovered hosts, ports, subdomains, and services
+    BB->>SW: Phase 2 - Vulnerability probing begins
+    SW->>BB: Confirmed vulnerabilities with severity and MITRE tags
+    BB->>AG: Phase 3 - Attack Graph construction begins
+    AG->>BB: Choke points and ranked attack chain paths
+    BB->>RE: Phase 4 - Remediation generation begins
+    RE->>BB: Terraform, Ansible, Sigma, and YARA artifacts
+    BB->>RP: Phase 5 - Report compilation begins
+    RP->>Op: Executive report, SARIF, ATT&CK map, and patch code
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Reconnaissance — Map the attack surface</strong>
+          <p>Discover every domain name, subdomain, IP address, open port, running service version, and exposed directory. Think of this as drawing the complete floor plan of the building before deciding which locks to test.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Vulnerability Probing — Test each asset based on its technology</strong>
+          <p>Web applications are crawled and fuzzed. Cloud accounts are audited against security benchmarks. Corporate networks are tested for identity and credential weaknesses. Source code is scanned for insecure patterns.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Attack Graph Construction — Connect the dots</strong>
+          <p>Individual findings are connected into a graph. The intelligence layer calculates which sequence of weaknesses an attacker would chain together to reach the most sensitive target, and identifies the single "choke point" that, when fixed, collapses the most attack paths simultaneously.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Autonomous Remediation — Generate fix code</strong>
+          <p>For every confirmed vulnerability, REVENANT generates production-ready fix code tailored to the specific technology involved — cloud configuration scripts, container network policies, server hardening playbooks, and detection rules.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <strong>Reporting — Deliver to every stakeholder</strong>
+          <p>The mission produces six formats of output simultaneously, each targeted at a different audience — from the CEO to the cloud engineer to the SOC analyst.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECTION 5 ── -->
+  <section id="s5">
+    <h2><span class="section-num">05</span> The Five Mission Profiles</h2>
+    <p>REVENANT does not run the same assessment every time. An operator chooses a <strong>Mission Profile</strong> at the start, which tells REVENANT which specialist agents to activate and which domains to focus on. Think of profiles as preset camera modes — from a quick portrait shot to a full, high-resolution panoramic exposure.</p>
+    <div class="profile-grid">
+
+      <div class="profile-card">
+        <div class="profile-name">recon</div>
+        <h4>Surface Mapping</h4>
+        <p>Get an accurate, complete inventory of everything the target exposes to the world before committing to deeper testing. Does not probe for vulnerabilities or attempt any exploitation.</p>
+        <p><strong>When to use:</strong> First look at a new target, or periodic check for new assets that appeared since the last audit.</p>
+        <div class="tools-used">Tools: Nmap, Subfinder, FFuf</div>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-name">web-dast</div>
+        <h4>Web and API Security Testing</h4>
+        <p>Comprehensively test every web application, API endpoint, and user-facing interface. Includes crawling every page, sending malformed inputs, testing authentication logic, and scanning source code.</p>
+        <p><strong>When to use:</strong> Before a new web app or API goes live, or for periodic web security validation.</p>
+        <div class="tools-used">Tools: Katana, Nuclei, Semgrep, Schemathesis, Native DAST Adapter, FFuf</div>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-name">cloud-native</div>
+        <h4>Cloud Infrastructure and Containers</h4>
+        <p>Audit security posture of cloud accounts and container environments. Checks public storage buckets, excessive permissions, container image CVEs, and Kubernetes boundary enforcement.</p>
+        <p><strong>When to use:</strong> AWS, Azure, or Kubernetes deployments needing benchmark-validated security.</p>
+        <div class="tools-used">Tools: Trivy, Prowler, Checkov, Kubescape, Kube-bench, Falco</div>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-name">ad-identity</div>
+        <h4>Active Directory and Identity</h4>
+        <p>Test the internal corporate network's identity infrastructure. Discovers compromisable accounts, hidden paths to administrator access, and certificate authority misconfigurations.</p>
+        <p><strong>When to use:</strong> Simulate an internal threat — a compromised employee account — and measure how far damage could spread.</p>
+        <div class="tools-used">Tools: NetExec, BloodHound, Certipy</div>
+      </div>
+
+      <div class="profile-card profile-full">
+        <div class="profile-name">full-spectrum</div>
+        <h4>Complete Enterprise Assessment</h4>
+        <p>All five domains activated simultaneously. Every agent coordinates concurrently, findings correlate across all domains, and the full attack graph is built from the external entry point to the innermost sensitive resource. Ends with complete remediation and all six reporting formats.</p>
+        <p><strong>When to use:</strong> Annual security assessments, compliance audits, or full multi-stage adversarial campaign simulations.</p>
+        <div class="tools-used">Tools: Every tool in the ecosystem + Attack Graph Engine + Remediation Engine + All six report exporters</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── SECTION 6 ── -->
+  <section id="s6">
+    <h2><span class="section-num">06</span> Every Tool in REVENANT Explained</h2>
+    <p>REVENANT integrates 20+ battle-tested security tools across five operational domains. Rather than building everything from scratch, it wraps each tool in a standardized adapter layer so they all speak the same internal language. Here is every tool, what it does, and why REVENANT uses it.</p>
+
+    <div class="domain-header">
+      <div class="domain-icon net">🌐</div>
+      <div>
+        <h3 style="margin:0;">Domain 1: Network and Perimeter</h3>
+        <p style="margin:0;font-size:0.83rem;color:var(--text-muted);">Discover what exists before testing anything</p>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Nmap — Network Mapper</div>
+      <div class="tool-tag">Port and Service Discovery</div>
+      <p>Nmap is the oldest and most trusted network scanning tool in the world. It knocks on every digital door (called a port) and listens for what answers. From the response, Nmap identifies the exact software and version running — for example, "Apache HTTP Server 2.4.49 on port 80." This directly informs which specific vulnerabilities to test for next. Without Nmap, REVENANT would be walking into a building completely blind.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Subfinder — Subdomain Discovery</div>
+      <div class="tool-tag">Attack Surface Enumeration</div>
+      <p>Large companies do not just have one website. They have dozens of subdomains — separate addresses for different services like mail.company.com, api.company.com, staging.company.com, or admin.company.com. These subdomains are often created for testing and forgotten, left unpatched and vulnerable. Subfinder scours public internet records, certificate transparency logs, and DNS databases to build a complete list of every subdomain associated with a target domain. REVENANT uses this as the foundation of its perimeter map.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">FFuf — Web Directory Fuzzing</div>
+      <div class="tool-tag">Hidden Endpoint Discovery</div>
+      <p>Even after mapping known subdomains, hidden content often lurks behind unlisted URLs. FFuf rapidly fires thousands of web address guesses per second using wordlists (pre-built lists of common directory and file names) to discover pages not linked anywhere publicly — like /admin, /backup, /config.php, or /.git. These hidden paths often contain sensitive information or outdated software that becomes an easy entry point.</p>
+    </div>
+
+    <div class="domain-header">
+      <div class="domain-icon web">🔬</div>
+      <div>
+        <h3 style="margin:0;">Domain 2: Web and Application Security</h3>
+        <p style="margin:0;font-size:0.83rem;color:var(--text-muted);">Probe every user-facing surface for exploitable flaws</p>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Katana — Web Crawler</div>
+      <div class="tool-tag">Sitemap Generation</div>
+      <p>Before you can test a web application for vulnerabilities, you need to know every page, form, button, and API endpoint it has. Katana is a high-speed automated browser that navigates websites the way a human would — clicking links, submitting forms, following redirects — but at machine speed, mapping every reachable endpoint in seconds. REVENANT uses Katana to create the complete sitemap so every subsequent scanner knows exactly what to test.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Nuclei — Template-Based Vulnerability Scanner</div>
+      <div class="tool-tag">Known Vulnerability Detection</div>
+      <p>Nuclei uses a library of thousands of community-written templates — each one a precise test for a specific known vulnerability, misconfiguration, or security weakness. When REVENANT runs Nuclei against a discovered web service, it simultaneously fires hundreds of targeted checks: Is this server running software with a known CVE? Is the security header misconfigured? Does this endpoint expose debug information? Is there an admin panel with default credentials? Nuclei is REVENANT's rapid, comprehensive first pass at finding low-hanging fruit across the entire web surface.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Semgrep — Static Application Security Testing</div>
+      <div class="tool-tag">Source Code Analysis (SAST)</div>
+      <p>While Nuclei tests running applications from the outside, Semgrep reads source code from the inside. It scans code line by line using pattern-matching rules to find insecure coding patterns before the software is even deployed — SQL queries that concatenate user input directly (SQL injection risk), hardcoded API keys, dangerous cryptographic functions, or missing input validation. REVENANT uses Semgrep when source code is available, giving it visibility into vulnerabilities invisible from the outside.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Schemathesis — API Property-Based Fuzzing</div>
+      <div class="tool-tag">OpenAPI Correctness Testing</div>
+      <p>Modern web services expose APIs that document their expected inputs using OpenAPI specifications. Schemathesis reads these specifications and then systematically feeds the API unexpected inputs — extreme values, empty strings, special characters, reversed data types — to expose edge cases where the API crashes, exposes internal errors, or returns data it should not. This is called property-based fuzzing, and it catches logical flaws that rule-based scanners completely miss.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Native DAST Adapter — In-Process Web Fuzzer</div>
+      <div class="tool-tag">Custom Dynamic Testing Engine</div>
+      <p>In addition to wrapping external tools, REVENANT includes its own built-in dynamic testing engine written in Python. This adapter directly tests for three critical web vulnerability classes: Cross-Site Scripting (XSS, where malicious scripts are injected into web pages), Open Redirects (where an attacker tricks a website into sending users to a malicious address), and Path Traversal (where attackers navigate outside the web application's intended directories to read server files). Unlike external tools, this adapter can be precisely tuned without depending on third-party releases.</p>
+    </div>
+
+    <div class="domain-header">
+      <div class="domain-icon cloud">☁️</div>
+      <div>
+        <h3 style="margin:0;">Domain 3: Cloud and Container Security</h3>
+        <p style="margin:0;font-size:0.83rem;color:var(--text-muted);">Audit cloud accounts and container infrastructure against global benchmarks</p>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Trivy — Container and Infrastructure Vulnerability Scanner</div>
+      <div class="tool-tag">CVE and Misconfiguration Detection</div>
+      <p>Modern applications are packaged into "containers" — isolated bundles of software that can run consistently anywhere. These containers are built from "images" that often include operating system packages, libraries, and dependencies. If those components have known security vulnerabilities (CVEs), the container is a liability. Trivy scans container images, file systems, and infrastructure-as-code configurations to detect known CVEs, misconfigurations, and sensitive data.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Prowler — Cloud Security Posture Management</div>
+      <div class="tool-tag">AWS and Azure Benchmark Auditing</div>
+      <p>Prowler audits cloud accounts against hundreds of security checks derived from global standards like the CIS Benchmark, SOC 2, and GDPR requirements. It answers questions like: Are any S3 storage buckets publicly readable? Is multi-factor authentication enforced on all administrator accounts? Are security groups allowing unrestricted inbound traffic from the entire internet? Is CloudTrail logging disabled? Prowler gives REVENANT a comprehensive, benchmark-scored view of an organization's cloud security posture.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Checkov — Infrastructure-as-Code Security Scanner</div>
+      <div class="tool-tag">Pre-Deployment Configuration Analysis</div>
+      <p>Modern cloud infrastructure is defined in code files — Terraform scripts, CloudFormation templates, Kubernetes YAML manifests. Checkov scans these files before they are deployed to catch misconfigurations at the blueprint stage — for example, a Terraform file that will create a database with no encryption, or a Kubernetes manifest that will create a container running as the root user. REVENANT uses Checkov to catch cloud security problems before they ever reach production.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Kubescape and Kube-bench — Kubernetes Security Hardening</div>
+      <div class="tool-tag">CIS Kubernetes Benchmark Validation</div>
+      <p>Kubernetes is the dominant platform for orchestrating containers at scale. Misconfigured Kubernetes clusters are extremely common and extremely dangerous — a container that escapes its sandbox can compromise the entire host machine. Kubescape evaluates cluster configurations against NSA/CISA Kubernetes Hardening Guidance. Kube-bench checks every node against the CIS Kubernetes Benchmark. Together they give REVENANT a complete compliance picture of the cluster's security posture.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Falco — Runtime Security and Anomaly Detection</div>
+      <div class="tool-tag">Live Container Intrusion Detection</div>
+      <p>Falco monitors running containers in real time, watching for behavioral anomalies that indicate something has gone wrong: a web server process suddenly opening a shell, a container reading system password files, a process establishing an outbound connection to an unknown IP address. While the other cloud tools audit configuration, Falco catches active threats happening live. In REVENANT's purple team mode, Falco verifies whether an organization's runtime detection is working as expected.</p>
+    </div>
+
+    <div class="domain-header">
+      <div class="domain-icon id">🏢</div>
+      <div>
+        <h3 style="margin:0;">Domain 4: Identity and Active Directory</h3>
+        <p style="margin:0;font-size:0.83rem;color:var(--text-muted);">Expose hidden privilege paths inside corporate networks</p>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">NetExec — Network Credential Validation</div>
+      <div class="tool-tag">Password Reuse and Lateral Movement Testing</div>
+      <p>NetExec is the modern successor to the legendary CrackMapExec tool. It tests whether a set of credentials — perhaps discovered through a phishing simulation or a credential dump — can be used to authenticate against multiple services on an internal corporate network simultaneously. Services tested include SMB file shares, RDP remote desktop, WinRM management, and LDAP directory services. This reveals whether an organization suffers from password reuse across multiple systems, one of the most common ways attackers pivot through corporate networks.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">BloodHound — Active Directory Attack Path Mapping</div>
+      <div class="tool-tag">Privilege Escalation Graph Analysis</div>
+      <p>Active Directory manages which employee accounts can access which computers, servers, and resources. BloodHound ingests all of Active Directory's relationships — users, groups, computers, permissions, and trust links — and maps them into a visual web. It then runs graph algorithms to find non-obvious paths from a low-privilege user account all the way to Domain Administrator. These paths often involve obscure permission delegations that no human administrator would think to audit. REVENANT uses BloodHound to reveal the invisible attack highways inside corporate networks.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Certipy — Active Directory Certificate Services Auditing</div>
+      <div class="tool-tag">AD CS Misconfiguration Detection (ESC1-ESC8)</div>
+      <p>Many organizations run their own internal certificate authority using Microsoft Active Directory Certificate Services (AD CS). AD CS is notoriously difficult to configure securely, and misconfigurations — classified as ESC1 through ESC8 — can allow a low-privilege account to request a certificate that authenticates it as a Domain Administrator. Certipy automatically enumerates the certificate templates, authority configurations, and permissions in an AD CS environment and flags which specific misconfigurations are present.</p>
+    </div>
+
+    <div class="domain-header">
+      <div class="domain-icon fm">🔍</div>
+      <div>
+        <h3 style="margin:0;">Domain 5: Forensics, Malware, and Threat Simulation</h3>
+        <p style="margin:0;font-size:0.83rem;color:var(--text-muted);">Detect threats, analyze malware, and simulate nation-state attack techniques</p>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">YARA — Malware Pattern Matching</div>
+      <div class="tool-tag">File and Memory Signature Detection</div>
+      <p>YARA is the industry standard for writing rules that describe malicious software. Each YARA rule is a signature — a set of strings, byte patterns, and logical conditions that identify a specific piece of malware, a webshell, or a hacking tool. REVENANT uses YARA to scan files and memory regions against libraries of thousands of rules covering known ransomware, remote access trojans, and web shells. REVENANT also auto-generates new YARA rules for the specific malware artifacts it simulates during an engagement.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Volatility 3 — Memory Forensics</div>
+      <div class="tool-tag">RAM Dump Analysis</div>
+      <p>Sophisticated attackers and modern malware often operate entirely in RAM — they never write any files to the hard drive, making them invisible to traditional antivirus software. Volatility analyzes a snapshot (dump) of a computer's RAM and can extract running processes, network connections, loaded kernel modules, encryption keys, command histories, and injected malicious code — all without ever touching the hard disk. REVENANT uses Volatility when memory analysis of a potentially compromised system is required.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Velociraptor — Live Endpoint Forensics and Triage</div>
+      <div class="tool-tag">Fleet-Scale Incident Investigation</div>
+      <p>Where Volatility analyzes memory dumps from individual computers, Velociraptor can simultaneously interrogate thousands of live machines across an entire organization using VQL (Velociraptor Query Language). It can answer questions like: "Show me every machine that ran this executable in the last 48 hours," or "List all machines with a suspicious new service installed." REVENANT uses Velociraptor for enterprise-scale incident triage and to validate that indicators of compromise are properly visible to the organization's detection tooling.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Binwalk — Firmware Analysis</div>
+      <div class="tool-tag">IoT and Embedded System Security</div>
+      <p>When REVENANT operates in firmware security mode (relevant for IoT devices, network appliances, and embedded systems), Binwalk extracts, decompresses, and analyzes firmware binary images. It identifies embedded file systems, configuration files, encryption keys, and known vulnerable libraries packed inside firmware. This is critical for hardware security assessments where the "software" being tested is burned into a physical device.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">CAPEv2 — Malware Sandbox and Dynamic Analysis</div>
+      <div class="tool-tag">Behavioral Malware Profiling</div>
+      <p>CAPEv2 is a malware analysis sandbox. When a suspicious file or payload needs to be analyzed, CAPEv2 runs it in an isolated, instrumented virtual machine and records everything the malware does: which files it creates, which registry keys it modifies, which network connections it makes, which processes it launches or injects into. REVENANT uses CAPEv2 to dynamically profile custom payloads generated during engagements, producing behavioral reports that inform detection rule generation.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Atomic Red Team — Adversary Technique Simulation</div>
+      <div class="tool-tag">MITRE ATT&CK Technique Emulation</div>
+      <p>Atomic Red Team is a library of small, focused test scripts — called "atomics" — each of which simulates one specific attacker technique catalogued in the MITRE ATT&CK framework. For example, an atomic for T1059 simulates malicious command-line execution; an atomic for T1003 simulates credential dumping. REVENANT executes these atomics in a controlled manner to test whether an organization's endpoint detection and SIEM alarms actually fire correctly when real attacker behaviors occur.</p>
+    </div>
+
+    <div class="tool-card">
+      <div class="tool-name">Caldera — Automated Adversary Emulation</div>
+      <div class="tool-tag">Full APT Campaign Simulation</div>
+      <p>Caldera takes adversary simulation further than individual atomics. It is a full adversary emulation platform that can deploy autonomous agents on target machines, chain multiple ATT&CK techniques together into complete campaigns, and adapt its behavior based on what it discovers. REVENANT integrates with Caldera to run multi-stage attack simulations — for example, simulating an entire APT campaign from initial access through lateral movement, privilege escalation, and data exfiltration.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 7 ── -->
+  <section id="s7">
+    <h2><span class="section-num">07</span> The Adapter System: How REVENANT Controls Every Tool Without Breaking</h2>
+    <p>Each of the 20+ tools above speaks a completely different language. Nmap outputs XML. YARA outputs custom text. Katana streams JSON lines. Nuclei uses a structured template format. If REVENANT had to write unique parsing code for every tool's output, the system would be impossible to maintain.</p>
+    <p>The <strong>Adapter System</strong> solves this by giving every tool an identical four-step wrapper. Think of it as a universal translator. No matter what language a tool speaks natively, its adapter converts everything into a single, clean standard that the rest of REVENANT understands perfectly.</p>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+flowchart LR
+    S1["Scope Validation\nIs the target authorized?\nIf not, hard stop."] --> S2
+    S2["Command Construction\nBuild the exact CLI command\nwith correct flags and targets."] --> S3
+    S3["Safe Execution\nRun the tool in isolation.\nCapture all raw output."] --> S4
+    S4["Output Standardization\nParse raw text, XML, or JSON.\nConvert into a uniform Finding record."]
+      </div>
+      <div class="diagram-caption">Every tool — regardless of its native output format — produces the same standardized Finding record at the end.</div>
+    </div>
+    <p>The output of Step 4 is always a <strong>Finding</strong> object. Here is what a standardized Finding record looks like:</p>
+    <div class="finding-record">
+      <div class="field"><span class="key">title:</span><span class="val">Outdated Apache HTTP Server with Known Remote Code Execution (CVE-2021-41773)</span></div>
+      <div class="field"><span class="key">description:</span><span class="val">Path traversal and RCE vulnerability in Apache 2.4.49. Allows unauthenticated file read and code execution.</span></div>
+      <div class="field"><span class="key">location:</span><span class="val">http://target.company.com:80 — Apache/2.4.49</span></div>
+      <div class="field"><span class="key">severity:</span><span class="val">Critical</span></div>
+      <div class="field"><span class="key">mitre_technique:</span><span class="val">T1190 — Exploit Public-Facing Application</span></div>
+      <div class="field"><span class="key">discovered_by:</span><span class="val">nmap_adapter + nuclei_adapter</span></div>
+    </div>
+    <p>Because every single tool outputs identical Finding records, the blackboard, attack graph engine, remediation engine, and reporting engine never need to know which tool found a given issue. The system is fully modular — new tools can be added by writing one new adapter, and the rest of the platform automatically benefits.</p>
+  </section>
+
+  <!-- ── SECTION 8 ── -->
+  <section id="s8">
+    <h2><span class="section-num">08</span> The Attack Graph and Choke Point Engine</h2>
+    <p>This is the capability that fundamentally separates REVENANT from a collection of automated scanners. Any scanner can find individual vulnerabilities. REVENANT finds the <strong>narrative</strong> — the story of how an attacker would move through your environment from beginning to end.</p>
+    <h3>The Core Problem: Lists vs. Graphs</h3>
+    <p>Traditional security reports deliver a list of findings sorted by severity. The team patches the "Critical" items first, then works down the list. This sounds logical but is deeply flawed. Many devastating breaches are assembled from entirely "Low" and "Medium" severity findings that, in isolation, seem harmless.</p>
+    <div class="callout warning">
+      <p>Real attackers do not see a list. They see a <strong>graph of trust relationships</strong>. They ask: "What can I reach from here? What does this access give me? How do I get from this low-privilege position to that high-value target?"</p>
+    </div>
+    <h3>How REVENANT Builds the Graph</h3>
+    <p>After all agents complete their probing, REVENANT's Attack Graph Engine ingests every Finding from the blackboard and constructs a mathematical graph where nodes represent assets and findings, and edges represent exploitable relationships between them. It then applies graph traversal algorithms to discover every possible attack path from the external internet to each sensitive target.</p>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+flowchart LR
+    ATK[External Attacker] --> F1
+    F1[Forgotten subdomain discovered\nstaging.company.com\nSeverity: Low] --> F2
+    F2[Outdated PHP version on that subdomain\nSeverity: Medium] --> F3
+    F3[Default admin credentials still active\nSeverity: Low] --> F4
+    F4[Full access to customer database\nSeverity: Critical]
+    F2 --> CP[CHOKE POINT\nFix the PHP version here.\nSteps 3 and 4 become unreachable.\nEntire chain collapses.]
+      </div>
+      <div class="diagram-caption">Four Low or Medium findings chain into a Critical breach. The Choke Point breaks the entire sequence at one single fix.</div>
+    </div>
+    <h3>The Choke Point Calculation</h3>
+    <p>Once all attack paths are mapped, REVENANT calculates which single node, if hardened, eliminates the greatest number of distinct attack paths simultaneously. This is the <strong>Choke Point</strong>. Security teams receive a ranked, prioritized action list: fix this one thing first because it neutralizes five attack routes at once.</p>
+    <p>Think of it like a city's water supply. You could repair every individual leaking pipe across the city — which takes months and enormous resources. Or, if you identify the one main valve that feeds sixty percent of those leaking pipes, you turn that one valve and stop the majority of the leaks in seconds.</p>
+    <div class="callout success">
+      <p>Choke Points transform remediation from an overwhelming 200-item list into a focused, high-impact action plan. Maximum security improvement for minimum engineering effort.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 9 ── -->
+  <section id="s9">
+    <h2><span class="section-num">09</span> The Autonomous Remediation Engine</h2>
+    <p>Most security platforms hand you the problem and leave you to figure out the solution. REVENANT does not stop at discovery. For every confirmed vulnerability, the Remediation Engine synthesizes production-ready defense code tailored to the exact technology stack involved.</p>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+flowchart TD
+    FINDING[Confirmed Vulnerability arrives from Blackboard] --> REM[Autonomous Remediation Engine]
+    REM --> TF[Terraform patch\nLocks down cloud storage\nCloses firewall openings\nRestricts IAM permissions]
+    REM --> K8S[Kubernetes NetworkPolicy\nCreates default-deny rules\nIsolates container traffic\nEnforces pod security]
+    REM --> ANS[Ansible playbook\nDisables SMBv1 and Telnet\nEnforces SSH key auth\nRemoves default accounts]
+    REM --> SIG[Sigma detection rule\nDescribes attack behavior\nPlugs into Splunk and Elastic\nAlerts on future attempts]
+    REM --> YAR[YARA signature rule\nMatches malware patterns\nDeploys to endpoint security\nCatches same malware again]
+      </div>
+      <div class="diagram-caption">A single confirmed vulnerability triggers five categories of automated defense artifacts.</div>
+    </div>
+    <p><strong>Terraform patches</strong> are cloud infrastructure code. They describe the corrected state of a cloud resource — exactly how an S3 bucket should be configured to be private, or exactly how an IAM role should be scoped to only the permissions it actually needs. Engineers apply these directly through their standard cloud deployment pipeline.</p>
+    <p><strong>Kubernetes manifests</strong> define network boundary policies for container environments. A generated NetworkPolicy file explicitly states which containers are allowed to communicate with which other containers, and denies everything else by default. This prevents a compromised container from freely reaching other internal services.</p>
+    <p><strong>Ansible playbooks</strong> are server automation scripts describing system-level hardening actions — disabling old insecure protocols like SMBv1, enforcing encrypted SSH authentication, removing default user accounts, and applying CIS benchmark configurations — executable across an entire fleet of servers with a single command.</p>
+    <p><strong>Sigma rules</strong> are vendor-neutral detection rule specifications. They describe the behavioral pattern of an attack technique in a structured format that can be automatically converted to work with any major security monitoring platform — Splunk, Microsoft Sentinel, Elastic SIEM, IBM QRadar, and others.</p>
+    <p><strong>YARA rules</strong> are file and memory signature rules deployed to endpoint detection tools. They fingerprint the specific malware artifacts, payloads, or webshells involved in the engagement so that future instances of the same malicious file are automatically detected anywhere in the organization.</p>
+  </section>
+
+  <!-- ── SECTION 10 ── -->
+  <section id="s10">
+    <h2><span class="section-num">10</span> How You Interact With REVENANT</h2>
+    <p>REVENANT is designed for two modes of operation.</p>
+    <h3>Direct Command-Line Mode</h3>
+    <p>For individual engineers and security consultants running targeted assessments. A single command specifying the target, the scope manifest file, and the desired profile launches the entire platform. All results are saved to a local evidence directory. This mode is fast, portable, and requires no infrastructure beyond a Python environment.</p>
+    <h3>Appliance Mode</h3>
+    <p>For enterprise security operations teams. REVENANT is deployed as a containerized appliance using Docker Compose, running continuously in the background. In this mode, it exposes a REST API that allows other systems to trigger scans programmatically, schedule recurring assessments, integrate findings directly into vulnerability management dashboards, and send alerts to SOAR platforms like Splunk Phantom or Cortex XSOAR when critical findings are confirmed.</p>
+  </section>
+
+  <!-- ── SECTION 11 ── -->
+  <section id="s11">
+    <h2><span class="section-num">11</span> The Final Deliverables: What REVENANT Produces</h2>
+    <p>When a mission concludes, REVENANT produces six distinct output formats simultaneously, each crafted for a different audience within an organization.</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Output Format</th>
+            <th>Audience</th>
+            <th>What It Contains</th>
+            <th>Why It Matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Executive Markdown Report</strong></td>
+            <td>CEO, CISO, Compliance Team</td>
+            <td>Plain-language risk summary, business impact assessment, and prioritized top-line actions</td>
+            <td>Leaders need to understand business risk, not technical jargon</td>
+          </tr>
+          <tr>
+            <td><strong>SARIF v2.1.0 Log</strong></td>
+            <td>Software Developers</td>
+            <td>Machine-readable vulnerability data with exact file paths and line numbers</td>
+            <td>Integrates natively with GitHub, GitLab, and VS Code to show findings inline in code</td>
+          </tr>
+          <tr>
+            <td><strong>MITRE ATT&amp;CK Navigator Layer</strong></td>
+            <td>Security Operations Center</td>
+            <td>Heatmap of every attacker technique simulated during the mission</td>
+            <td>Shows which techniques the organization has no detection coverage for</td>
+          </tr>
+          <tr>
+            <td><strong>Terraform and Ansible Patches</strong></td>
+            <td>Cloud Engineers, DevOps Teams</td>
+            <td>Ready-to-deploy infrastructure fix code for every confirmed finding</td>
+            <td>Eliminates the engineering effort of writing remediation code from scratch</td>
+          </tr>
+          <tr>
+            <td><strong>Sigma and YARA Rules</strong></td>
+            <td>SOC Analysts, Threat Hunters</td>
+            <td>Detection rules deployable to any SIEM or EDR platform</td>
+            <td>Converts offensive findings directly into defensive detection capability</td>
+          </tr>
+          <tr>
+            <td><strong>Faraday and Dradis Exports</strong></td>
+            <td>Security Managers</td>
+            <td>Structured findings importable into vulnerability management platforms</td>
+            <td>Enables long-term tracking of remediation progress across multiple assessments</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── SECTION 12 ── -->
+  <section id="s12">
+    <h2><span class="section-num">12</span> The Full Mental Model — Everything in One Picture</h2>
+    <p>If you have read this entire document, here is everything distilled into one cohesive mental picture — from the operator's first command to the final deliverables in hand.</p>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+flowchart TD
+    OP[Operator provides Target and Scope Manifest] --> SE
+    SE{Scope Engine: Is this authorized?}
+    SE -- No --> STOP[Hard stop. Nothing runs.]
+    SE -- Yes --> BB
+
+    BB[Central Blackboard: Shared mission memory]
+    BB --> SW
+
+    subgraph SW[15 Specialist Agents running in parallel]
+        R[Recon Agent: Nmap, Subfinder, FFuf]
+        W[Web Agent: Katana, Nuclei, Semgrep, Schemathesis]
+        CL[Cloud Agent: Trivy, Prowler, Checkov, Kubescape, Falco]
+        ID[Identity Agent: NetExec, BloodHound, Certipy]
+        FM[Forensics Agent: YARA, Volatility, Velociraptor]
+        PT[Purple Team Agent: Atomic Red Team, Caldera]
+    end
+
+    SW -->|Every finding becomes a standardized Finding record| BB
+    BB --> AG
+
+    AG[Attack Graph Engine: Connects findings into attack chains and calculates Choke Points]
+    AG --> RE
+
+    RE[Remediation Engine: Generates Terraform, Ansible, Kubernetes, Sigma, and YARA artifacts]
+    RE --> RP
+
+    RP[Reporting Engine: Compiles all six output formats]
+    RP --> OUT
+
+    OUT[Final Deliverables: Executive Report, SARIF, ATT&CK Map, Patch Code, Detection Rules]
+      </div>
+      <div class="diagram-caption">The complete REVENANT platform — from authorization to final deliverables — in a single view.</div>
+    </div>
+    <div class="callout info">
+      <p>REVENANT is not a scanner. It is not a checklist. It is an autonomous, self-coordinating security intelligence system that thinks in attack chains, operates within strict legal boundaries, and closes the loop from discovery all the way to defense — without a human needing to babysit every step.</p>
+    </div>
+  </section>
+
+  <!-- ── SECTION 13 ── -->
+  <section id="s13">
+    <h2><span class="section-num">13</span> Glossary — Every Key Term in Plain English</h2>
+    <div class="glossary-grid">
+      <div class="glossary-item"><div class="gterm">Red Team</div><div class="gdef">An authorized ethical team that simulates real attackers to expose weaknesses before criminals do.</div></div>
+      <div class="glossary-item"><div class="gterm">Blue Team</div><div class="gdef">The defense team that monitors systems, detects threats, and responds to incidents.</div></div>
+      <div class="glossary-item"><div class="gterm">Purple Team</div><div class="gdef">A collaborative exercise where Red and Blue teams work together to test attack simulations and tune detection responses simultaneously.</div></div>
+      <div class="glossary-item"><div class="gterm">Scope Manifest</div><div class="gdef">A signed, legally binding document defining exactly which systems are authorized for testing. Nothing outside this list is touched.</div></div>
+      <div class="glossary-item"><div class="gterm">Blackboard</div><div class="gdef">The central shared memory that all autonomous agents read from and write to without communicating directly with each other.</div></div>
+      <div class="glossary-item"><div class="gterm">Agent</div><div class="gdef">An autonomous software specialist that monitors the blackboard and acts on findings relevant to its domain.</div></div>
+      <div class="glossary-item"><div class="gterm">SAST</div><div class="gdef">Static Application Security Testing — scanning source code without running it to find insecure patterns.</div></div>
+      <div class="glossary-item"><div class="gterm">DAST</div><div class="gdef">Dynamic Application Security Testing — probing a running application from the outside by sending it real traffic.</div></div>
+      <div class="glossary-item"><div class="gterm">CVE</div><div class="gdef">Common Vulnerabilities and Exposures — a globally numbered database of known software security flaws.</div></div>
+      <div class="glossary-item"><div class="gterm">CIS Benchmark</div><div class="gdef">Center for Internet Security Benchmark — globally recognized configuration standards for securely setting up systems and cloud services.</div></div>
+      <div class="glossary-item"><div class="gterm">MITRE ATT&amp;CK</div><div class="gdef">A globally recognized framework cataloguing every technique real-world attackers use, organized by tactic.</div></div>
+      <div class="glossary-item"><div class="gterm">Attack Graph</div><div class="gdef">A mathematical map of all the paths an attacker could take through a network from entry point to sensitive target.</div></div>
+      <div class="glossary-item"><div class="gterm">Choke Point</div><div class="gdef">The single most impactful node in the attack graph — fixing it collapses the most attack paths simultaneously.</div></div>
+      <div class="glossary-item"><div class="gterm">Remediation</div><div class="gdef">The process of repairing a vulnerability — in REVENANT's case, by generating ready-to-deploy fix code automatically.</div></div>
+      <div class="glossary-item"><div class="gterm">SARIF</div><div class="gdef">Static Analysis Results Interchange Format — a standard machine-readable format for security findings used by developer tooling like GitHub and VS Code.</div></div>
+      <div class="glossary-item"><div class="gterm">Sigma</div><div class="gdef">A vendor-neutral detection rule language that can be converted to work with any SIEM platform — Splunk, Sentinel, Elastic, and others.</div></div>
+      <div class="glossary-item"><div class="gterm">YARA</div><div class="gdef">A pattern-matching language used to write signatures that identify malware, webshells, and hacking tools in files and memory.</div></div>
+      <div class="glossary-item"><div class="gterm">Terraform</div><div class="gdef">Infrastructure-as-Code tool that defines and deploys cloud resources through configuration files. Used by REVENANT to generate cloud fix code.</div></div>
+      <div class="glossary-item"><div class="gterm">Ansible</div><div class="gdef">An automation tool that applies system configuration changes across servers using human-readable playbook files.</div></div>
+      <div class="glossary-item"><div class="gterm">Kubernetes</div><div class="gdef">A platform for running and orchestrating containerized applications at scale. Used extensively in modern cloud infrastructure.</div></div>
+      <div class="glossary-item"><div class="gterm">Active Directory</div><div class="gdef">Microsoft's corporate identity management system — manages users, computers, groups, and permissions in an office network.</div></div>
+      <div class="glossary-item"><div class="gterm">SOAR</div><div class="gdef">Security Orchestration, Automation and Response — platforms that automate security alert triage and incident response workflows.</div></div>
+      <div class="glossary-item"><div class="gterm">EDR</div><div class="gdef">Endpoint Detection and Response — security software running on individual computers that monitors for and responds to malicious activity.</div></div>
+      <div class="glossary-item"><div class="gterm">SIEM</div><div class="gdef">Security Information and Event Management — a centralized platform that collects, stores, and analyzes security logs from across the organization.</div></div>
+    </div>
+  </section>
+
+  <div class="footer">
+    REVENANT — Universal Study Companion &nbsp;|&nbsp; For authorized security education use only
+  </div>
+
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      background: '#161b22',
+      primaryColor: '#1c2430',
+      primaryTextColor: '#e6edf3',
+      primaryBorderColor: '#30363d',
+      lineColor: '#58a6ff',
+      secondaryColor: '#1c2430',
+      tertiaryColor: '#0d1117',
+      edgeLabelBackground: '#161b22',
+      nodeTextColor: '#e6edf3',
+      clusterBkg: '#161b22',
+      clusterBorder: '#30363d',
+      titleColor: '#e6edf3',
+      activationBorderColor: '#58a6ff',
+      activationBkgColor: '#1c2430',
+      sequenceNumberColor: '#e6edf3',
+      actorBkg: '#1c2430',
+      actorBorder: '#58a6ff',
+      actorTextColor: '#e6edf3',
+      actorLineColor: '#58a6ff',
+      signalColor: '#c9d1d9',
+      signalTextColor: '#c9d1d9',
+      labelBoxBkgColor: '#161b22',
+      labelBoxBorderColor: '#30363d',
+      labelTextColor: '#e6edf3',
+      loopTextColor: '#e6edf3',
+      noteBorderColor: '#d29922',
+      noteBkgColor: '#1c2430',
+      noteTextColor: '#e6edf3',
+      fontFamily: 'Inter, sans-serif',
+      fontSize: '14px'
+    },
+    flowchart: { curve: 'basis', padding: 20 },
+    sequence: { actorMargin: 50, messageMargin: 35 }
+  });
+</script>
+</body>
+</html>

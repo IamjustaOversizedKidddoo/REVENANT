@@ -80,6 +80,21 @@ PROFILES: Dict[str, MissionProfile] = {
             "SMB session & authentication validation via NetExec (NXC)",
         ],
     ),
+    "ai-reasoning": MissionProfile(
+        name="ai-reasoning",
+        description="Web assessment augmented with the opt-in LLM Planner agent for autonomous next-action reasoning.",
+        target_type="url",
+        active_agents=["crawl", "dast", "triage", "llm-planner"],
+        max_iterations=20,
+        timeout_seconds=300,
+        safe_mode_default=True,
+        capabilities=[
+            "Dynamic injection sweeps: Reflected XSS, Open Redirect, Path Traversal",
+            "In-swarm LLM reasoning: next-best-action planning on high-signal events",
+            "Planner notes recorded as informational findings in the report",
+            "Graceful degrade: deterministic heuristic plan when no API key is set",
+        ],
+    ),
     "full-spectrum": MissionProfile(
         name="full-spectrum",
         description="Complete autonomous cyber warfare assessment engaging all 20+ specialized agents with cross-domain attack graph synthesis.",

@@ -27,6 +27,15 @@ from orchestrator.engine import Orchestrator
 from orchestrator.remediation.remediation_engine import RemediationEngine
 from reporting.generator import ReportGenerator
 
+# The intelligence layer is optional and degrades gracefully; import defensively so a
+# packaging variant without it can never break the core CLI.
+try:
+    from intelligence.analyst import AnalystNarrator
+    from intelligence.llm_client import LlmClient
+except Exception:  # pragma: no cover - only if intelligence/ is absent
+    AnalystNarrator = None  # type: ignore
+    LlmClient = None  # type: ignore
+
 
 def run_mission(
     target: str,
@@ -35,6 +44,7 @@ def run_mission(
     output_dir: str = "evidence",
     max_iterations: Optional[int] = None,
     verbose: bool = True,
+    llm_planner: bool = False,
 ) -> int:
     """
     Execute a full autonomous security mission against a sanctioned target.
@@ -79,7 +89,11 @@ def run_mission(
     #    State backend is env-selected (in-memory by default; SQLite/appliance when set),
     #    and only the profile's declared agents are instantiated — not all 16.
     blackboard = blackboard_from_env()
-    orchestrator = Orchestrator(blackboard=blackboard, active_agents=profile.active_agents)
+    # Opt-in LLM Planner: append (once) without mutating the shared profile object.
+    active_agents = list(profile.active_agents)
+    if llm_planner and "llm-planner" not in active_agents:
+        active_agents.append("llm-planner")
+    orchestrator = Orchestrator(blackboard=blackboard, active_agents=active_agents)
 
     if verbose:
         print(f"[*] Active state backend:  {os.environ.get('REVENANT_STATE', 'memory')}")
@@ -144,6 +158,23 @@ def run_mission(
         if verbose:
             print(f"[+] Autonomous Remediation: Generated {len(remed_artifacts)} IaC/Ansible/YARA fixes.")
 
+    # AI Analyst / Narrator enrichment — non-fatal, only when findings exist.
+    if findings and AnalystNarrator is not None:
+        try:
+            analyst = AnalystNarrator(
+                findings=findings,
+                assets=blackboard.get_assets(),
+                summary=summary,
+                target=target,
+            )
+            brief = analyst.run_and_save(str(out_path))
+            if verbose:
+                mode = brief.get("mode", "fallback")
+                print(f"[+] AI Analyst Brief: analysis.md written ({mode} mode).")
+        except Exception as exc:  # enrichment must never fail a scan
+            if verbose:
+                print(f"[!] AI Analyst enrichment skipped: {exc}")
+
     if verbose:
         print("-" * 64)
         print(f"[+] Mission artifacts saved to: {out_path.resolve()}")
@@ -155,6 +186,45 @@ def run_mission(
         print("=" * 64)
 
     return 0
+
+
+def auto_scope(target: str) -> ScopeManifest:
+    """Authorize exactly the target the operator named - so `revenant <target>` just works.
+
+    Naming a target IS the authorization. We build the tightest scope that still lets the
+    swarm do its job: a URL/host authorizes that host (and its subdomains for a domain),
+    an IP authorizes that IP, a CIDR authorizes that block. The scope engine still refuses
+    cloud-metadata/link-local/multicast ranges.
+    """
+    import ipaddress
+    from urllib.parse import urlparse
+
+    t = (target or "").strip()
+    host = t
+    if t.startswith("http://") or t.startswith("https://"):
+        host = urlparse(t).hostname or t
+
+    # CIDR block
+    if "/" in host:
+        try:
+            ipaddress.ip_network(host, strict=False)
+            return ScopeManifest(allowed_cidrs=[host])
+        except ValueError:
+            pass
+
+    # Single IP
+    try:
+        ipaddress.ip_address(host)
+        return ScopeManifest(allowed_hosts=[host], allowed_cidrs=[f"{host}/32"])
+    except ValueError:
+        pass
+
+    # Hostname / domain (+ its subdomains for recon)
+    return ScopeManifest(
+        allowed_domains=[host],
+        allowed_wildcards=[f"*.{host}"],
+        allowed_hosts=[host],
+    )
 
 
 # Key external tool per domain, used by `revenant doctor` to report real capability.
@@ -194,6 +264,22 @@ def cmd_doctor() -> int:
                        ("uvicorn", "API server")]:
         ok = importlib.util.find_spec(mod) is not None
         print(f"  [{'+' if ok else '-'}] {mod:<16} {label}")
+
+    # 2b. AI reasoning layer (optional [llm] extra)
+    print("\n[ AI reasoning layer ]")
+    if LlmClient is not None:
+        client = LlmClient()
+        sdk_ok = client.sdk_installed()
+        key_ok = bool(client.api_key)
+        print(f"  [{'+' if sdk_ok else '-'}] anthropic SDK   "
+              f"{'installed' if sdk_ok else 'not installed (pip install -e .[llm])'}")
+        print(f"  [{'+' if key_ok else '-'}] ANTHROPIC_API_KEY "
+              f"{'present' if key_ok else 'not set (deterministic fallback in use)'}")
+        print(f"  [i] model            {client.model}")
+        ready = "LLM" if client.available() else "deterministic fallback"
+        print(f"  [{'+' if client.available() else '-'}] planner/analyst  {ready}")
+    else:
+        print("  [-] intelligence layer not importable (deterministic fallback only)")
 
     # 3. State backend
     state = os.environ.get("REVENANT_STATE", "memory")
@@ -263,11 +349,61 @@ def cmd_quickstart(output_dir: str = "evidence/quickstart") -> int:
     )
 
 
+def _load_findings_file(path: Path) -> List[Finding]:
+    """Load findings from a report.json (or a raw findings list) into Finding models."""
+    raw = json.loads(path.read_text(encoding="utf-8"))
+    raw_findings = raw.get("findings", raw) if isinstance(raw, dict) else raw
+    findings: List[Finding] = []
+    for item in raw_findings or []:
+        if isinstance(item, dict):
+            try:
+                findings.append(Finding.model_validate(item))
+            except Exception:
+                pass
+    return findings
+
+
+def cmd_analyze(findings_file: str, output_dir: Optional[str] = None) -> int:
+    """Run the AI Analyst / Narrator over a findings export and write analysis.{md,json}."""
+    if AnalystNarrator is None:
+        print("[-] Intelligence layer unavailable in this install.", file=sys.stderr)
+        return 1
+    f_path = Path(findings_file)
+    if not f_path.exists():
+        print(f"[-] Findings file not found: {f_path}", file=sys.stderr)
+        return 1
+
+    raw = json.loads(f_path.read_text(encoding="utf-8"))
+    target = raw.get("target") if isinstance(raw, dict) else None
+    findings = _load_findings_file(f_path)
+    out_dir = output_dir or str(f_path.parent)
+
+    analyst = AnalystNarrator(findings=findings, target=target)
+    brief = analyst.run_and_save(out_dir)
+
+    print("=" * 64)
+    print("  REVENANT AI ANALYST — Intelligence Brief")
+    print("=" * 64)
+    print(f"[*] Findings analyzed: {len(findings)}  (mode: {brief.get('mode', 'fallback')})")
+    print(f"[*] Written to:        {Path(out_dir).resolve()}/analysis.md, analysis.json")
+    print("-" * 64)
+    print(analyst.render_markdown(brief))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construct multi-command CLI parser."""
     parser = argparse.ArgumentParser(
         prog="revenant",
         description="REVENANT — Autonomous AI Red Teaming & Cyber Warfare Platform (v2.0)",
+        epilog=(
+            "Simple usage — give a target, it attacks:\n"
+            "  revenant http://target.local        # full-spectrum attack, scope auto-built\n"
+            "  revenant 10.0.0.5                    # same, for an IP\n"
+            "  revenant quickstart                  # zero-config demo against the bundled lab\n"
+            "  revenant doctor                      # what tools/capabilities this host has\n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     subparsers = parser.add_subparsers(dest="subcommand", help="Available platform operations")
@@ -285,6 +421,8 @@ def build_parser() -> argparse.ArgumentParser:
     scan_parser.add_argument("--allowed-identity-domains", nargs="*", default=[], help="Allowed Active Directory domains")
     scan_parser.add_argument("--output-dir", default="evidence", help="Report output directory")
     scan_parser.add_argument("--max-iterations", type=int, default=None, help="Maximum agent loop cycles")
+    scan_parser.add_argument("--llm-planner", action="store_true",
+                             help="Engage the opt-in LLM Planner agent (needs [llm] extra + ANTHROPIC_API_KEY; degrades to heuristic)")
 
     # 2. PROFILES SUBCOMMAND
     subparsers.add_parser("profiles", help="List available pre-configured assessment mission profiles")
@@ -295,6 +433,11 @@ def build_parser() -> argparse.ArgumentParser:
     # 2c. QUICKSTART SUBCOMMAND — zero-config demo against the bundled lab
     qs_parser = subparsers.add_parser("quickstart", help="Boot the bundled vuln lab and run a demo web-dast scan")
     qs_parser.add_argument("--output-dir", default="evidence/quickstart", help="Report output directory")
+
+    # 2d. ANALYZE SUBCOMMAND — AI Analyst / Narrator over a findings export
+    analyze_parser = subparsers.add_parser("analyze", help="Run the AI Analyst over a findings JSON and write analysis.md/json")
+    analyze_parser.add_argument("findings_file", help="Path to report.json (or a raw findings JSON list)")
+    analyze_parser.add_argument("--output-dir", default=None, help="Where to write analysis.{md,json} (default: alongside the input)")
 
     # 3. REMEDIATE SUBCOMMAND
     remed_parser = subparsers.add_parser("remediate", help="Generate automated remediation code from a JSON findings export")
@@ -313,13 +456,34 @@ def build_parser() -> argparse.ArgumentParser:
     serve_parser.add_argument("--host", default="0.0.0.0", help="Binding host interface")
     serve_parser.add_argument("--port", type=int, default=8000, help="Listening TCP port")
 
-    # Backward compatibility: Root level target argument if no subcommand specified
-    parser.add_argument("legacy_target", nargs="?", default=None, help=argparse.SUPPRESS)
-    parser.add_argument("--output-dir", default="evidence", help=argparse.SUPPRESS)
-    parser.add_argument("--max-iterations", type=int, default=25, help=argparse.SUPPRESS)
-    parser.add_argument("--profile", default="full-spectrum", help=argparse.SUPPRESS)
-
     return parser
+
+
+SUBCOMMANDS = {"scan", "profiles", "doctor", "quickstart", "analyze", "remediate", "asm", "serve"}
+
+
+def run_bare_target(argv: List[str]) -> int:
+    """`revenant <target> [--profile ...]` — the simple path: give a target, it attacks.
+
+    Auto-builds the authorized scope from the target and runs the full-spectrum swarm.
+    """
+    bp = argparse.ArgumentParser(
+        prog="revenant",
+        description="Give a target, REVENANT attacks it (full-spectrum by default).",
+    )
+    bp.add_argument("target", help="URL, hostname, IP, or CIDR to assess")
+    bp.add_argument("--profile", default="full-spectrum",
+                    help="Narrow the attack (recon, web-dast, cloud-native, ad-identity, full-spectrum)")
+    bp.add_argument("--output-dir", default="evidence", help="Report output directory")
+    bp.add_argument("--max-iterations", type=int, default=None, help="Cap agent loop cycles")
+    args = bp.parse_args(argv)
+    return run_mission(
+        target=args.target,
+        scope=auto_scope(args.target),
+        profile_name=args.profile,
+        output_dir=args.output_dir,
+        max_iterations=args.max_iterations,
+    )
 
 
 def main():
@@ -330,6 +494,11 @@ def main():
             stream.reconfigure(encoding="utf-8", errors="replace")
         except Exception:
             pass
+
+    # Simple path: `revenant <target>` with no subcommand -> full attack on that target.
+    argv = sys.argv[1:]
+    if argv and not argv[0].startswith("-") and argv[0] not in SUBCOMMANDS:
+        sys.exit(run_bare_target(argv))
 
     parser = build_parser()
     args = parser.parse_args()
@@ -357,6 +526,10 @@ def main():
     # Case A3: Subcommand QUICKSTART
     elif args.subcommand == "quickstart":
         sys.exit(cmd_quickstart(output_dir=args.output_dir))
+
+    # Case A4: Subcommand ANALYZE — AI Analyst / Narrator
+    elif args.subcommand == "analyze":
+        sys.exit(cmd_analyze(args.findings_file, output_dir=args.output_dir))
 
     # Case B: Subcommand REMEDIATE
     elif args.subcommand == "remediate":
@@ -406,34 +579,22 @@ def main():
     # Case E: Subcommand SCAN
     elif args.subcommand == "scan":
         target = args.target
-        scope = ScopeManifest(
-            allowed_hosts=args.allowed_hosts,
-            allowed_domains=args.allowed_domains,
-            allowed_cidrs=args.allowed_cidrs,
-            allowed_repos=args.allowed_repos,
-            allowed_cloud_accounts=args.allowed_cloud_accounts,
-            allowed_container_images=args.allowed_container_images,
-            allowed_identity_domains=args.allowed_identity_domains,
-        )
+        # Naming the target authorizes it; explicit --allowed-* flags extend the scope.
+        scope = auto_scope(target)
+        scope.allowed_hosts = sorted(set(scope.allowed_hosts) | set(args.allowed_hosts))
+        scope.allowed_domains = sorted(set(scope.allowed_domains) | set(args.allowed_domains))
+        scope.allowed_cidrs = sorted(set(scope.allowed_cidrs) | set(args.allowed_cidrs))
+        scope.allowed_repos = sorted(set(scope.allowed_repos) | set(args.allowed_repos))
+        scope.allowed_cloud_accounts = sorted(set(scope.allowed_cloud_accounts) | set(args.allowed_cloud_accounts))
+        scope.allowed_container_images = sorted(set(scope.allowed_container_images) | set(args.allowed_container_images))
+        scope.allowed_identity_domains = sorted(set(scope.allowed_identity_domains) | set(args.allowed_identity_domains))
         sys.exit(run_mission(
             target=target,
             scope=scope,
             profile_name=args.profile,
             output_dir=args.output_dir,
             max_iterations=args.max_iterations,
-        ))
-
-    # Case F: Legacy positional target (backward compatibility)
-    elif args.legacy_target:
-        scope = ScopeManifest(
-            allowed_hosts=["localhost", "127.0.0.1", args.legacy_target],
-        )
-        sys.exit(run_mission(
-            target=args.legacy_target,
-            scope=scope,
-            profile_name=getattr(args, "profile", "full-spectrum"),
-            output_dir=getattr(args, "output_dir", "evidence"),
-            max_iterations=getattr(args, "max_iterations", 25),
+            llm_planner=args.llm_planner,
         ))
 
     else:

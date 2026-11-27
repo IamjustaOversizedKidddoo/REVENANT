@@ -21,10 +21,17 @@ api = [
     "fastapi>=0.110.0",
     "uvicorn>=0.29.0",
 ]
+# Tier 1 (AI reasoning layer): `pip install revenant[llm]` then set ANTHROPIC_API_KEY.
+# Without it, the Analyst/Narrator and LLM Planner degrade to deterministic templates,
+# so the core install stays at just pydantic + requests and never needs a key.
+llm = [
+    "anthropic>=0.39",
+]
 # Convenience aggregate of every runtime extra.
 all = [
     "fastapi>=0.110.0",
     "uvicorn>=0.29.0",
+    "anthropic>=0.39",
 ]
 dev = [
     "pytest>=8.0.0",
@@ -39,7 +46,7 @@ revenant = "control_plane.cli:main"
 # the hyphenated control-plane/ dir, so it needs a second search root).
 [tool.setuptools.packages.find]
 where = [".", "control-plane"]
-include = ["orchestrator*", "adapters*", "reporting*", "control_plane*"]
+include = ["orchestrator*", "adapters*", "reporting*", "control_plane*", "intelligence*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

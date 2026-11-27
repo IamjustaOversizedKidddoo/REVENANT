@@ -30,26 +30,101 @@ docker compose up -d
 curl -s http://localhost:8000/api/v1/health | jq
 ```
 
-### 2. Unified CLI Operations (`revenant.py`)
+### 2. Simple CLI — give a target, it attacks
 ```bash
-# List available standardized mission profiles
-python revenant.py profiles
+pip install -e .                       # core install (just pydantic + requests)
 
-# Execute full-spectrum assessment
-python revenant.py scan http://portal.corp.local --profile full-spectrum --scope scope.yaml --output ./evidence/
-
-# Execute targeted Web / API DAST assessment
-python revenant.py scan https://api.corp.local --profile web-dast --scope scope.yaml
-
-# Generate autonomous remediation artifacts from findings
-python revenant.py remediate ./evidence/findings.json --output ./remediation/
-
-# External Attack Surface Management (ASM) drift detection
-python revenant.py asm --target corp.local --inventory ./assets/current.json --baseline ./assets/baseline.json
-
-# Start the REST API server locally
-python revenant.py serve --host 0.0.0.0 --port 8000
+revenant quickstart                    # zero-config demo against a bundled lab
+revenant http://portal.corp.local      # give a target -> full-spectrum attack
+revenant 10.0.0.0/24                   # works for a host, IP, or CIDR too
+revenant doctor                        # what tools/capabilities this host has
 ```
+Naming a target authorizes it: REVENANT auto-builds the scope from the target and
+still refuses metadata/link-local/multicast ranges. Narrow or extend when you need to:
+```bash
+revenant web-target.local --profile web-dast          # pick a single profile
+revenant scan https://api.corp.local --profile web-dast --allowed-domains api.corp.local
+
+revenant remediate ./evidence/report.json --output-dir ./remediation/   # fixes from findings
+revenant serve --host 0.0.0.0 --port 8000                               # REST API (needs [api] extra)
+```
+
+---
+
+## 🧭 Two ways to run REVENANT
+
+Both modes drive the **same `revenant` CLI** — only who types the commands differs.
+
+### A) Manually in the terminal
+```powershell
+# Windows PowerShell, from the repo root:
+.\.venv\Scripts\Activate.ps1          # activate the project venv  (prompt shows (.venv))
+python -m pip install -e .            # first time only — installs the `revenant` command
+revenant doctor
+revenant <authorized-target> --profile recon --output-dir evidence/<name>-recon
+```
+If `revenant` is "not recognized", the venv isn't activated or the editable install
+hasn't run. Either re-do the two steps above, or call the shim directly:
+`.\.venv\Scripts\revenant.exe doctor`. On a fresh venv without `pip`, bootstrap it once
+with `python -m ensurepip --upgrade`.
+
+### B) Driven by an AI agent (Claude Code, Antigravity, Codex, Cursor)
+The agent runs the exact same commands, reads the report files, and proposes next steps.
+Each agent reads its instruction file on startup:
+
+| Agent | Reads | 
+|:---|:---|
+| Claude Code | `CLAUDE.md` → points to `AGENTS.md` |
+| Codex / Antigravity / Cursor | `AGENTS.md` (cross-agent standard) |
+
+[`AGENTS.md`](AGENTS.md) is the single operator contract: setup, the canonical workflow,
+profiles, env vars, and the **mandatory authorization gate** (agents must only scan a
+target you own or are authorized to test, and must not bypass a scope refusal). Open the
+repo in the agent and ask it to follow the workflow against an **authorized** target —
+or `revenant quickstart` for a safe demo.
+
+---
+
+## 🧠 AI Reasoning Layer (optional)
+
+REVENANT's core is deterministic and free. An **optional** LLM layer adds reasoning on
+top — and it **degrades gracefully**: with no API key and the `anthropic` package not
+installed, both features fall back to a deterministic template engine, never crash, and
+never block a scan (same philosophy as the native fuzzers working without a binary).
+
+```bash
+pip install -e .[llm]          # adds the anthropic SDK (core stays pydantic + requests)
+export ANTHROPIC_API_KEY=...    # optional — without it, deterministic fallback is used
+```
+
+**1. Analyst / Narrator** — post-campaign enrichment. After any scan with findings,
+REVENANT writes `analysis.md` + `analysis.json` next to the report with four sections:
+per-finding **Mechanism / Impact / Fix**, **attack-path prediction** (findings chained
+into kill-chains with confidence + blast radius), **prioritized next steps**, and a
+CISO-language **executive summary**. Run it standalone over any findings export:
+
+```bash
+revenant analyze evidence/quickstart/report.json          # prints + writes analysis.md/json
+```
+
+**2. LLM Planner agent** — in-swarm reasoning. An opt-in agent that triggers on
+high-signal events (confirmed vulns, misconfigurations, privesc paths, new endpoints)
+and on campaign completion, asks the model for the single best next action, and records
+it as an informational finding in the report. It **never invents targets** — any action
+it suggests must reference an asset already on the blackboard and still passes the
+3-layer scope gate.
+
+```bash
+revenant web-target.local --profile ai-reasoning          # web-dast + the planner
+revenant scan https://api.corp.local --llm-planner        # add the planner to any scan
+revenant doctor                                           # shows the LLM layer status
+```
+
+| Env var | Default | Purpose |
+|:---|:---|:---|
+| `ANTHROPIC_API_KEY` | *(unset)* | Enables the LLM path; unset → deterministic fallback. |
+| `REVENANT_LLM_MODEL` | `claude-sonnet-4-5` | Model id for both features. |
+| `REVENANT_PLANNER_BUDGET` | `5` | Max planner reasoning calls per campaign (cost cap). |
 
 ---
 
@@ -61,6 +136,7 @@ python revenant.py serve --host 0.0.0.0 --port 8000
 | `web-dast` | Web App, API Endpoint | Semgrep, Nuclei, Katana, Native DastAdapter, FFuf, Schemathesis | Web/API vulnerability discovery, XSS, open redirects, path traversal, stateful OpenAPI fuzzing. |
 | `cloud-native` | Cloud Account, K8s Cluster | Trivy, Prowler, Checkov, Kubescape, Kube-bench, Falco | Cloud posture (AWS/Azure), container image CVEs, CIS benchmarks, K8s runtime anomalies. |
 | `ad-identity` | Active Directory Domain / DC | NetExec, BloodHound, Certipy | Domain enumeration, Kerberoasting, AS-REP roasting, AD CS certificate misconfigurations (ESC1-ESC8). |
+| `ai-reasoning` | Web App, API Endpoint | web-dast swarm + LLM Planner agent | Dynamic web testing augmented with in-swarm LLM next-action reasoning (opt-in; needs `[llm]` + key, else heuristic). |
 | `full-spectrum` | Enterprise Target / Hybrid | All Swarm Adapters + Attack Graph + Autonomous Remediation + SOAR | End-to-end multi-domain simulation: external discovery to lateral movement, choke points, and remediation. |
 
 ---

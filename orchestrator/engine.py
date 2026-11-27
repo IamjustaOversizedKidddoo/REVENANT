@@ -44,6 +44,10 @@ AGENT_REGISTRY: Dict[str, Callable[[], BaseAgent]] = {
     "forensics": _agent("forensics_agent", "ForensicsAgent"),
     "malware": _agent("malware_agent", "MalwareAgent"),
     "firmware": _agent("firmware_agent", "FirmwareAgent"),
+    # Opt-in LLM reasoning agent. Not in DEFAULT_AGENTS: default runs stay deterministic
+    # and free. Engaged via the `ai-reasoning` profile or `scan --llm-planner`.
+    "llm-planner": _agent("llm_planner_agent", "LlmPlannerAgent"),
+    "planner": _agent("llm_planner_agent", "LlmPlannerAgent"),
 }
 
 # Swarm built when no explicit agents/profile are supplied (preserves prior behavior).

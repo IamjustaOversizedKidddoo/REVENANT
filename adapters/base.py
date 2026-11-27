@@ -81,6 +81,56 @@ def get_wsl_gateway_ip(distro: str = "Ubuntu") -> str:
     return "127.0.0.1"
 
 
+# Tool name -> container image for the on-demand Docker runner (REVENANT_RUNNER=docker).
+# Running tools in Linux containers keeps the Windows host clean: no offensive binaries
+# are installed on it, so there is nothing for Defender / Application Control to flag.
+# Images use the tool as their ENTRYPOINT, so only the arguments are passed through.
+DOCKER_IMAGE_MAP: Dict[str, str] = {
+    "nuclei": "projectdiscovery/nuclei:latest",
+    "subfinder": "projectdiscovery/subfinder:latest",
+    "httpx": "projectdiscovery/httpx:latest",
+    "katana": "projectdiscovery/katana:latest",
+    "nmap": "instrumentisto/nmap:latest",
+    "trufflehog": "trufflesecurity/trufflehog:latest",
+    "gitleaks": "zricethezav/gitleaks:latest",
+    "semgrep": "semgrep/semgrep:latest",
+    "trivy": "aquasec/trivy:latest",
+}
+
+_VALID_RUNNERS = ("local", "wsl", "docker")
+
+
+def resolve_runner(explicit: Optional[str] = None) -> str:
+    """Pick the execution runner: 'local' | 'wsl' | 'docker'.
+
+    Order: explicit argument > REVENANT_RUNNER env var > 'local' (default).
+    An unknown value falls back to 'local' so a typo never changes behavior silently.
+    """
+    val = (explicit or os.environ.get("REVENANT_RUNNER") or "local").lower().strip()
+    return val if val in _VALID_RUNNERS else "local"
+
+
+def build_docker_command(image: str, tool_args: List[str], workdir: Optional[str] = None) -> List[str]:
+    """Wrap a tool invocation in an ephemeral `docker run`, mounting the work dir and
+    rewriting host-loopback targets so a Linux container can reach a Windows/host listener.
+
+    The container is removed on exit (`--rm`); nothing persists on the host.
+    """
+    from pathlib import Path
+    work = workdir or str(Path.cwd())
+    translated = [
+        a.replace("127.0.0.1", "host.docker.internal").replace("localhost", "host.docker.internal")
+        for a in tool_args
+    ]
+    return [
+        "docker", "run", "--rm",
+        "--add-host=host.docker.internal:host-gateway",  # reach host listeners on Linux engines
+        "-v", f"{work}:/work",
+        "-w", "/work",
+        image,
+    ] + translated
+
+
 class BaseAdapter(ABC):
     """Abstract base class for all 66 tool adapters."""
 
@@ -92,6 +142,7 @@ class BaseAdapter(ABC):
         binary_override: Optional[str] = None,
         use_wsl: bool = False,
         wsl_distro: str = "Ubuntu",
+        runner: Optional[str] = None,
     ):
         self.name = name
         self.category = category
@@ -99,6 +150,11 @@ class BaseAdapter(ABC):
         self.binary_override = binary_override
         self.use_wsl = use_wsl
         self.wsl_distro = wsl_distro
+        # Execution backend. Defaults to env/local; `use_wsl=True` still selects WSL
+        # for back-compat unless a runner is explicitly requested.
+        self.runner = resolve_runner(runner)
+        if self.runner == "local" and use_wsl:
+            self.runner = "wsl"
 
     @property
     def binary_path(self) -> Optional[str]:
@@ -126,10 +182,22 @@ class BaseAdapter(ABC):
     @property
     def is_wsl_mode(self) -> bool:
         """WSL2 execution bridge is only applicable when running on a Windows host."""
-        return self.use_wsl and os.name == "nt"
+        return self.runner == "wsl" and os.name == "nt"
+
+    @property
+    def is_docker_mode(self) -> bool:
+        """Run the tool in an ephemeral Linux container instead of on the host."""
+        return self.runner == "docker"
+
+    @property
+    def docker_image(self) -> Optional[str]:
+        """Container image backing this tool under the Docker runner, if mapped."""
+        return DOCKER_IMAGE_MAP.get(self.name)
 
     def is_installed(self) -> bool:
-        """Check if tool binary is available in PATH, custom location, or WSL."""
+        """Check if the tool is runnable via the active runner (host / WSL / Docker)."""
+        if self.is_docker_mode:
+            return shutil.which("docker") is not None and self.docker_image is not None
         if self.is_wsl_mode:
             return True
         return self.binary_path is not None
@@ -175,12 +243,21 @@ class BaseAdapter(ABC):
 
         # 2. Check installation
         bin_path = self.binary_path
-        if not bin_path and not self.is_wsl_mode:
+        if not bin_path and not self.is_wsl_mode and not self.is_docker_mode:
             return AdapterResult(
                 tool_name=self.name,
                 target=target,
                 exit_code=127,
                 error=f"Tool binary '{self.name}' not found on system PATH.",
+            )
+        if self.is_docker_mode and not self.docker_image:
+            return AdapterResult(
+                tool_name=self.name,
+                target=target,
+                exit_code=127,
+                error=(f"No container image mapped for tool '{self.name}' under the Docker "
+                       f"runner. Install it locally and use REVENANT_RUNNER=local, or add it "
+                       f"to DOCKER_IMAGE_MAP."),
             )
 
         # 3. Build command
@@ -205,6 +282,13 @@ class BaseAdapter(ABC):
             wsl_bin = r"C:\Windows\System32\wsl.exe" if os.path.exists(r"C:\Windows\System32\wsl.exe") else "wsl.exe"
             exec_cmd = [wsl_bin, "-d", self.wsl_distro, "-u", "root", "--", tool_binary] + translated_args
             run_env = None
+        elif self.is_docker_mode:
+            # Run the tool in an ephemeral Linux container. cmd[0] is the host binary
+            # name; the image's ENTRYPOINT is the tool, so only cmd[1:] (the args) go in.
+            exec_cmd = build_docker_command(self.docker_image, cmd[1:])
+            run_env = dict(subprocess.os.environ)
+            run_env["PYTHONIOENCODING"] = "utf-8"
+            run_env["PYTHONUTF8"] = "1"
         else:
             exec_cmd = cmd
             run_env = dict(subprocess.os.environ)
