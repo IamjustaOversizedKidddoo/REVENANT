@@ -435,6 +435,165 @@ def cmd_brief(findings_file: str, output_dir: Optional[str] = None) -> int:
     return 0
 
 
+# --------------------------------------------------------------------------- #
+# Interactive mode: `revenant` (no args) or `revenant start`                   #
+# Welcome screen first, then prompt for a target, then print what was found    #
+# (severity-ranked) plus the attack-path escalation map, right in the terminal.#
+# --------------------------------------------------------------------------- #
+
+_BANNER = r"""   ██████╗ ███████╗██╗   ██╗███████╗███╗   ██╗ █████╗ ███╗   ██╗████████╗
+   ██╔══██╗██╔════╝██║   ██║██╔════╝████╗  ██║██╔══██╗████╗  ██║╚══██╔══╝
+   ██████╔╝█████╗  ██║   ██║█████╗  ██╔██╗ ██║███████║██╔██╗ ██║   ██║
+   ██╔══██╗██╔══╝  ╚██╗ ██╔╝██╔══╝  ██║╚██╗██║██╔══██║██║╚██╗██║   ██║
+   ██║  ██║███████╗ ╚████╔╝ ███████╗██║ ╚████║██║  ██║██║ ╚████║   ██║
+   ╚═╝  ╚═╝╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   """
+
+
+def _print_welcome() -> None:
+    """Branded landing screen shown before any target is requested."""
+    print("=" * 64)
+    print(_BANNER)
+    print("            AUTONOMOUS AI RED TEAMING & SECURITY PLATFORM  v2.0")
+    print("=" * 64)
+    print("  Give me a target and I will tell you:")
+    print("    - what I found, ranked by criticality (CRITICAL -> INFO)")
+    print("    - what each issue is, why it matters, and how to fix it")
+    print("    - how an attacker could escalate it (the attack-path map)")
+    print()
+    print("  I only test targets you own or are authorized to test.")
+    print("  (Press Enter with no target to run the safe bundled demo lab.)")
+    print("-" * 64)
+
+
+_SEV_MARK = {
+    "CRITICAL": "!!!!",
+    "HIGH": "!!! ",
+    "MEDIUM": "!!  ",
+    "LOW": "!   ",
+    "INFO": "·   ",
+}
+
+
+def render_terminal_findings(findings: List[Finding], target: str) -> None:
+    """Print a severity-ranked findings summary + attack-path escalation map."""
+    print("\n" + "=" * 64)
+    print(f"  WHAT REVENANT FOUND  —  {target}")
+    print("=" * 64)
+
+    if not findings:
+        print("  No confirmed findings on the tested surface.")
+        print("  A static or well-hardened target often surfaces little — that is a")
+        print("  real result, not a failure. Try a broader profile or a dynamic app.")
+        print("=" * 64)
+        return
+
+    order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "INFO": 4}
+    counts = {k: 0 for k in order}
+    for f in findings:
+        sev = str(getattr(f.severity, "value", f.severity)).upper()
+        counts[sev] = counts.get(sev, 0) + 1
+    print(f"  CRITICAL: {counts['CRITICAL']}    HIGH: {counts['HIGH']}    "
+          f"MEDIUM: {counts['MEDIUM']}    LOW: {counts['LOW']}    INFO: {counts['INFO']}")
+
+    # Per-finding detail from the ReconBLADE brief (what/why/fix/escalation).
+    entries: List[dict] = []
+    if ReconBladeBrief is not None:
+        rb = ReconBladeBrief(findings=findings, target=target).build()
+        entries = rb["entries"]
+        print("\n  PRIORITY ORDER (fix worst first):")
+        for p in rb["priority_order"]:
+            print(f"    {p['rank']}. [{p['severity']}] {p['title']}")
+
+    for e in entries:
+        mark = _SEV_MARK.get(e["severity"], "    ")
+        print("\n" + "-" * 64)
+        print(f"  {mark} [{e['severity']}] {e['title']}")
+        print(f"       Where         : {e['endpoint']}")
+        print(f"       What it is    : {e['what_it_is']}")
+        print(f"       Why it matters: {e['why_it_matters']}")
+        print(f"       Fix           : {e['fix']}")
+        print(f"       If exploited  : {e['if_you_do_it']}")
+
+    # Attack-path escalation map from the Analyst layer (if this -> then this).
+    if AnalystNarrator is not None:
+        try:
+            chains = AnalystNarrator(findings=findings, target=target).build().get("attack_paths", [])
+        except Exception:
+            chains = []
+        if chains:
+            print("\n" + "=" * 64)
+            print("  ATTACK-PATH ESCALATION MAP  (if this happens -> this follows)")
+            print("=" * 64)
+            for i, c in enumerate(chains, 1):
+                print(f"\n  Chain {i}: {c.get('name', 'Predicted escalation')}")
+                print(f"     Path        : {c.get('chain', '')}")
+                print(f"     Confidence  : {c.get('confidence', 'n/a')}")
+                print(f"     Blast radius: {c.get('blast_radius', '')}")
+
+    print("\n" + "=" * 64)
+    print("  Full detail (HTML / Markdown / SARIF) saved in the output directory.")
+    print("=" * 64)
+
+
+def _ask(prompt: str, default: str = "") -> str:
+    """input() that is safe when stdin is closed (returns the default)."""
+    try:
+        val = input(prompt).strip()
+    except (EOFError, KeyboardInterrupt):
+        return default
+    return val or default
+
+
+def _target_slug(target: str) -> str:
+    import re
+    host = ScopeEngine.extract_host(target) or "target"
+    slug = re.sub(r"[^A-Za-z0-9._-]", "_", host)[:40]
+    return slug or "target"
+
+
+def cmd_start() -> int:
+    """Interactive session: welcome screen -> ask target -> scan -> print findings."""
+    _print_welcome()
+
+    target = _ask("  Target (URL / host / IP / CIDR): ")
+    if not target:
+        print("\n[*] No target entered — launching the bundled safe demo lab.\n")
+        rc = cmd_quickstart()
+        demo_report = Path("evidence/quickstart") / "report.json"
+        if demo_report.exists():
+            render_terminal_findings(_load_findings_file(demo_report), "http://127.0.0.1:3000 (demo lab)")
+        return rc
+
+    # Authorization gate — interactive confirmation before touching a real target.
+    ok = _ask(f"  Do you own or have written authorization to test '{target}'? [y/N]: ", "n").lower()
+    if ok not in ("y", "yes"):
+        print("\n[-] Authorization not confirmed. REVENANT only tests targets you are",
+              file=sys.stderr)
+        print("    allowed to. Run with no target for the safe demo lab instead.", file=sys.stderr)
+        return 1
+
+    default_profile = "web-dast" if target.startswith(("http://", "https://")) else "recon"
+    profile = _ask(
+        f"  Profile [recon | web-dast | ai-reasoning | full-spectrum] (default {default_profile}): ",
+        default_profile,
+    )
+    out_dir = f"evidence/{_target_slug(target)}"
+
+    print()
+    rc = run_mission(
+        target=target,
+        scope=auto_scope(target),
+        profile_name=profile,
+        output_dir=out_dir,
+    )
+
+    # Re-present what was found, in-terminal, ranked + escalation-mapped.
+    report = Path(out_dir) / "report.json"
+    if report.exists():
+        render_terminal_findings(_load_findings_file(report), target)
+    return rc
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construct multi-command CLI parser."""
     parser = argparse.ArgumentParser(
@@ -451,6 +610,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     subparsers = parser.add_subparsers(dest="subcommand", help="Available platform operations")
+
+    # 0. START SUBCOMMAND — interactive welcome -> target -> findings in terminal
+    subparsers.add_parser("start", help="Interactive mode: welcome screen, prompt for a target, print findings")
 
     # 1. SCAN SUBCOMMAND
     scan_parser = subparsers.add_parser("scan", help="Launch an autonomous security assessment mission")
@@ -508,7 +670,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-SUBCOMMANDS = {"scan", "profiles", "doctor", "quickstart", "analyze", "brief", "remediate", "asm", "serve"}
+SUBCOMMANDS = {"start", "scan", "profiles", "doctor", "quickstart", "analyze", "brief", "remediate", "asm", "serve"}
 
 
 def run_bare_target(argv: List[str]) -> int:
@@ -544,13 +706,21 @@ def main():
         except Exception:
             pass
 
-    # Simple path: `revenant <target>` with no subcommand -> full attack on that target.
+    # No arguments at all -> interactive welcome screen (not a usage error).
     argv = sys.argv[1:]
+    if not argv:
+        sys.exit(cmd_start())
+
+    # Simple path: `revenant <target>` with no subcommand -> full attack on that target.
     if argv and not argv[0].startswith("-") and argv[0] not in SUBCOMMANDS:
         sys.exit(run_bare_target(argv))
 
     parser = build_parser()
     args = parser.parse_args()
+
+    # Case 0: Subcommand START — interactive mode
+    if args.subcommand == "start":
+        sys.exit(cmd_start())
 
     # Case A: Subcommand PROFILES
     if args.subcommand == "profiles":
