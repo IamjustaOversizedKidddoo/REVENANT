@@ -71,6 +71,14 @@ def run_mission(
     profile = get_profile(profile_name) or get_profile("full-spectrum")
     effective_iterations = max_iterations if max_iterations is not None else profile.max_iterations
 
+    # If the chosen profile tests web URLs but the operator gave a bare host
+    # (e.g. "example.org"), normalize to https:// so the common case just works
+    # instead of silently scanning an empty surface. Same host -> scope unchanged.
+    normalized_from = None
+    if profile.target_type == "url" and not target.startswith(("http://", "https://")):
+        normalized_from = target
+        target = f"https://{target}"
+
     if verbose:
         print(HR)
         print("   ██████╗ ███████╗██╗   ██╗███████╗███╗   ██╗ █████╗ ███╗   ██╗████████╗")
@@ -87,6 +95,8 @@ def run_mission(
         _kv("Agents", ", ".join(profile.active_agents))
         _kv("Iterations", effective_iterations)
         _kv("Output", output_dir)
+        if normalized_from:
+            _kv("", f"(you typed '{normalized_from}' — testing it as a website: {target})")
         print(HRL)
 
     # 1. LAYER 1 SCOPE CHECK (CLI Intake Gate)
@@ -550,9 +560,17 @@ def render_terminal_findings(findings: List[Finding], target: str) -> None:
     print(HR)
 
     if not findings:
-        print("  No confirmed findings on the tested surface.")
-        print("  A static or well-hardened target often surfaces little — that is a")
-        print("  real result, not a failure. Try a broader profile or a dynamic app.")
+        print("  The scan finished cleanly — nothing exploitable was found on the")
+        print("  surface REVENANT could reach. This is a real result, not an error.")
+        print()
+        print("  Why this can happen:")
+        print("    - the target is static or well-hardened (a genuinely good sign), or")
+        print("    - there was little to test (e.g. a bare domain with no live app behind it).")
+        print()
+        print("  What to try next:")
+        print("    - give the full URL of a running app, e.g. https://app.example.com")
+        print("    - use a broader profile, such as full-spectrum")
+        print("    - run `revenant quickstart` for a full report on the safe demo lab")
         print(HR)
         return
 
