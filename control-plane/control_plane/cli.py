@@ -39,6 +39,22 @@ except Exception:  # pragma: no cover - only if intelligence/ is absent
     ReconBladeBrief = None  # type: ignore
 
 
+# --------------------------------------------------------------------------- #
+# Terminal presentation                                                        #
+# One width (matching the ASCII banner) and two rule weights, so every block   #
+# frames flush with the logo and the eye can tell a top-level section from a   #
+# sub-section at a glance.                                                     #
+# --------------------------------------------------------------------------- #
+UI_WIDTH = 73
+HR = "═" * UI_WIDTH   # heavy rule — top-level section frames
+HRL = "─" * UI_WIDTH  # light rule — sub-dividers within a section
+
+
+def _kv(label: str, value: object, width: int = 16) -> None:
+    """Print one aligned key/value row (value column starts at `width`)."""
+    print(f"  {label:<{width}}{value}")
+
+
 def run_mission(
     target: str,
     scope: ScopeManifest,
@@ -56,7 +72,7 @@ def run_mission(
     effective_iterations = max_iterations if max_iterations is not None else profile.max_iterations
 
     if verbose:
-        print("=" * 64)
+        print(HR)
         print("   ██████╗ ███████╗██╗   ██╗███████╗███╗   ██╗ █████╗ ███╗   ██╗████████╗")
         print("   ██╔══██╗██╔════╝██║   ██║██╔════╝████╗  ██║██╔══██╗████╗  ██║╚══██╔══╝")
         print("   ██████╔╝█████╗  ██║   ██║█████╗  ██╔██╗ ██║███████║██╔██╗ ██║   ██║   ")
@@ -64,13 +80,14 @@ def run_mission(
         print("   ██║  ██║███████╗ ╚████╔╝ ███████╗██║ ╚████║██║  ██║██║ ╚████║   ██║   ")
         print("   ╚═╝  ╚═╝╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   ")
         print("            AUTONOMOUS AI RED TEAMING & CYBER WARFARE PLATFORM           ")
-        print("=" * 64)
-        print(f"[*] Target:             {target}")
-        print(f"[*] Mission Profile:    {profile.name.upper()} ({profile.description})")
-        print(f"[*] Active Agents:      {', '.join(profile.active_agents)}")
-        print(f"[*] Max Iterations:     {effective_iterations}")
-        print(f"[*] Output Directory:   {output_dir}")
-        print("-" * 64)
+        print(HR)
+        _kv("Target", target)
+        _kv("Profile", profile.name.upper())
+        _kv("", profile.description)
+        _kv("Agents", ", ".join(profile.active_agents))
+        _kv("Iterations", effective_iterations)
+        _kv("Output", output_dir)
+        print(HRL)
 
     # 1. LAYER 1 SCOPE CHECK (CLI Intake Gate)
     scope_engine = ScopeEngine(scope)
@@ -110,14 +127,16 @@ def run_mission(
     )
 
     if verbose:
-        print("-" * 64)
-        print("[+] Mission Complete!")
-        print(f"    - Iterations Run:    {summary.get('iterations_run', 0)}")
-        print(f"    - Discovered Assets: {summary.get('total_assets', 0)}")
-        print(f"    - Confirmed Flaws:   {summary.get('total_findings', 0)}")
-        for sev, count in summary.get("findings_by_severity", {}).items():
-            if count > 0:
-                print(f"      * {sev}: {count}")
+        print()
+        print("  MISSION COMPLETE")
+        print(HRL)
+        _kv("Iterations", summary.get("iterations_run", 0))
+        _kv("Assets", summary.get("total_assets", 0))
+        _kv("Findings", summary.get("total_findings", 0))
+        sev_counts = {s: c for s, c in summary.get("findings_by_severity", {}).items() if c > 0}
+        if sev_counts:
+            breakdown = "   ".join(f"{s} {c}" for s, c in sev_counts.items())
+            _kv("", breakdown)
 
     # 5. Generate & Save Multi-Format Reports
     out_path = Path(output_dir)
@@ -189,14 +208,17 @@ def run_mission(
                 print(f"[!] ReconBLADE brief skipped: {exc}")
 
     if verbose:
-        print("-" * 64)
-        print(f"[+] Mission artifacts saved to: {out_path.resolve()}")
-        print(f"    - Executive Markdown:  {md_file.name}")
-        print(f"    - Interactive HTML:    {html_file.name}")
-        print(f"    - Static SARIF v2.1:   {sarif_file.name}")
-        print(f"    - Raw Telemetry JSON:  {json_file.name}")
-        print(f"    - MITRE ATT&CK Matrix: {nav_file.name}")
-        print("=" * 64)
+        print()
+        print("  ARTIFACTS")
+        print(HRL)
+        _kv("Saved to", out_path.resolve())
+        print()
+        _kv("  report.md", "Executive summary (Markdown)", 26)
+        _kv("  report.html", "Interactive dashboard", 26)
+        _kv("  report.sarif", "CI/CD code scanning (SARIF 2.1)", 26)
+        _kv("  report.json", "Raw findings + attack graph", 26)
+        _kv("  report.attack_nav.json", "MITRE ATT&CK Navigator layer", 26)
+        print(HR)
 
     return 0
 
@@ -257,9 +279,9 @@ TOOL_MATRIX = {
 
 def cmd_doctor() -> int:
     """Report what REVENANT can actually do on this host: tools, deps, state backend."""
-    print("=" * 64)
+    print(HR)
     print("  REVENANT DOCTOR - host capability probe")
-    print("=" * 64)
+    print(HR)
 
     # 1. External security tools (present on PATH)
     print("\n[ External tools on PATH ]")
@@ -307,9 +329,9 @@ def cmd_doctor() -> int:
     print("\n[ Profile readiness ]  (native capability always available)")
     for p in list_profiles():
         print(f"  - {p.name}")
-    print("\n" + "=" * 64)
+    print("\n" + HR)
     print("  Tip: missing tools can run containerized at work — core install stays light.")
-    print("=" * 64)
+    print(HR)
     return 0
 
 
@@ -397,12 +419,12 @@ def cmd_analyze(findings_file: str, output_dir: Optional[str] = None) -> int:
     analyst = AnalystNarrator(findings=findings, target=target)
     brief = analyst.run_and_save(out_dir)
 
-    print("=" * 64)
+    print(HR)
     print("  REVENANT AI ANALYST — Intelligence Brief")
-    print("=" * 64)
+    print(HR)
     print(f"[*] Findings analyzed: {len(findings)}  (mode: {brief.get('mode', 'fallback')})")
     print(f"[*] Written to:        {Path(out_dir).resolve()}/analysis.md, analysis.json")
-    print("-" * 64)
+    print(HRL)
     print(analyst.render_markdown(brief))
     return 0
 
@@ -425,12 +447,12 @@ def cmd_brief(findings_file: str, output_dir: Optional[str] = None) -> int:
     brief_obj = ReconBladeBrief(findings=findings, target=target)
     brief = brief_obj.run_and_save(out_dir)
 
-    print("=" * 64)
+    print(HR)
     print("  REVENANT — ReconBLADE-style Findings Brief")
-    print("=" * 64)
+    print(HR)
     print(f"[*] Findings: {len(findings)}  (mode: {brief.get('mode', 'fallback')})")
     print(f"[*] Written to: {Path(out_dir).resolve()}/findings_brief.md, findings_brief.json")
-    print("-" * 64)
+    print(HRL)
     print(brief_obj.render_markdown(brief))
     return 0
 
@@ -495,13 +517,13 @@ def _load_mask() -> str:
 
 def _print_welcome() -> None:
     """Branded landing screen shown before any target is requested."""
-    print("=" * 80)
+    print(HR)
     print(_BANNER)
     print()
     print(_load_mask())
     print()
     print("          AUTONOMOUS AI RED TEAMING & SECURITY PLATFORM  v2.0")
-    print("=" * 80)
+    print(HR)
     print("  Give me a target and I will tell you:")
     print("    - what I found, ranked by criticality (CRITICAL -> INFO)")
     print("    - what each issue is, why it matters, and how to fix it")
@@ -509,7 +531,7 @@ def _print_welcome() -> None:
     print()
     print("  I only test targets you own or are authorized to test.")
     print("  (Press Enter with no target to run the safe bundled demo lab.)")
-    print("-" * 64)
+    print(HRL)
 
 
 _SEV_MARK = {
@@ -523,15 +545,15 @@ _SEV_MARK = {
 
 def render_terminal_findings(findings: List[Finding], target: str) -> None:
     """Print a severity-ranked findings summary + attack-path escalation map."""
-    print("\n" + "=" * 64)
+    print("\n" + HR)
     print(f"  WHAT REVENANT FOUND  —  {target}")
-    print("=" * 64)
+    print(HR)
 
     if not findings:
         print("  No confirmed findings on the tested surface.")
         print("  A static or well-hardened target often surfaces little — that is a")
         print("  real result, not a failure. Try a broader profile or a dynamic app.")
-        print("=" * 64)
+        print(HR)
         return
 
     order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "INFO": 4}
@@ -553,7 +575,7 @@ def render_terminal_findings(findings: List[Finding], target: str) -> None:
 
     for e in entries:
         mark = _SEV_MARK.get(e["severity"], "    ")
-        print("\n" + "-" * 64)
+        print("\n" + HRL)
         print(f"  {mark} [{e['severity']}] {e['title']}")
         print(f"       Where         : {e['endpoint']}")
         print(f"       What it is    : {e['what_it_is']}")
@@ -568,18 +590,18 @@ def render_terminal_findings(findings: List[Finding], target: str) -> None:
         except Exception:
             chains = []
         if chains:
-            print("\n" + "=" * 64)
+            print("\n" + HR)
             print("  ATTACK-PATH ESCALATION MAP  (if this happens -> this follows)")
-            print("=" * 64)
+            print(HR)
             for i, c in enumerate(chains, 1):
                 print(f"\n  Chain {i}: {c.get('name', 'Predicted escalation')}")
                 print(f"     Path        : {c.get('chain', '')}")
                 print(f"     Confidence  : {c.get('confidence', 'n/a')}")
                 print(f"     Blast radius: {c.get('blast_radius', '')}")
 
-    print("\n" + "=" * 64)
+    print("\n" + HR)
     print("  Full detail (HTML / Markdown / SARIF) saved in the output directory.")
-    print("=" * 64)
+    print(HR)
 
 
 def _ask(prompt: str, default: str = "") -> str:
@@ -771,9 +793,9 @@ def main():
 
     # Case A: Subcommand PROFILES
     if args.subcommand == "profiles":
-        print("=" * 64)
+        print(HR)
         print("  REVENANT MISSION PROFILES")
-        print("=" * 64)
+        print(HR)
         for p in list_profiles():
             print(f"\n[•] Profile: {p.name.upper()}")
             print(f"    Description:    {p.description}")
@@ -782,7 +804,7 @@ def main():
             print(f"    Default Limit:  {p.max_iterations} iterations, {p.timeout_seconds}s timeout")
             for cap in p.capabilities:
                 print(f"      - {cap}")
-        print("\n" + "=" * 64)
+        print("\n" + HR)
         sys.exit(0)
 
     # Case A2: Subcommand DOCTOR
