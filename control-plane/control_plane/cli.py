@@ -449,12 +449,59 @@ _BANNER = r"""   ██████╗ ███████╗██╗   █�
    ╚═╝  ╚═╝╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝   ╚═╝   """
 
 
+# Last-resort mask if the generated asset files are missing.
+_FALLBACK_MASK = r"""
+                    ▄▄████████████▄▄
+                 ▄██▀▀▀        ▀▀▀██▄
+               ▄█▀▀   ▄▄▄    ▄▄▄   ▀▀█▄
+              █▀    ◣█████◢  ◣█████◢    ▀█
+             █          ╲   ▲   ╱          █
+             █▄      ║ ║ ║ ║ ║ ║ ║      ▄█
+                 ▀██▄▄  ╚═════════╝  ▄▄██▀
+                    ▀▀████▄▄▄▄▄▄████▀▀"""
+
+
+def _enable_windows_ansi() -> bool:
+    """Turn on ANSI/VT processing so 24-bit color renders in a Windows console."""
+    if os.name != "nt":
+        return True
+    try:
+        import ctypes
+
+        k = ctypes.windll.kernel32
+        handle = k.GetStdHandle(-11)  # STD_OUTPUT_HANDLE
+        mode = ctypes.c_uint32()
+        if not k.GetConsoleMode(handle, ctypes.byref(mode)):
+            return False
+        k.SetConsoleMode(handle, mode.value | 0x0004)  # ENABLE_VIRTUAL_TERMINAL_PROCESSING
+        return True
+    except Exception:
+        return False
+
+
+def _load_mask() -> str:
+    """Return the Doom-mask art: ANSI-colored on a real terminal, else plain, else fallback."""
+    assets = Path(__file__).resolve().parent / "assets"
+    use_color = sys.stdout.isatty() and _enable_windows_ansi()
+    try:
+        if use_color and (assets / "mask.ans").exists():
+            return (assets / "mask.ans").read_text(encoding="utf-8")
+        if (assets / "mask.txt").exists():
+            return (assets / "mask.txt").read_text(encoding="utf-8")
+    except Exception:
+        pass
+    return _FALLBACK_MASK
+
+
 def _print_welcome() -> None:
     """Branded landing screen shown before any target is requested."""
-    print("=" * 64)
+    print("=" * 80)
     print(_BANNER)
-    print("            AUTONOMOUS AI RED TEAMING & SECURITY PLATFORM  v2.0")
-    print("=" * 64)
+    print()
+    print(_load_mask())
+    print()
+    print("          AUTONOMOUS AI RED TEAMING & SECURITY PLATFORM  v2.0")
+    print("=" * 80)
     print("  Give me a target and I will tell you:")
     print("    - what I found, ranked by criticality (CRITICAL -> INFO)")
     print("    - what each issue is, why it matters, and how to fix it")

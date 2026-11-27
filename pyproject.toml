@@ -48,6 +48,9 @@ revenant = "control_plane.cli:main"
 where = [".", "control-plane"]
 include = ["orchestrator*", "adapters*", "reporting*", "control_plane*", "intelligence*"]
 
+[tool.setuptools.package-data]
+control_plane = ["assets/*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = [".", "control-plane"]

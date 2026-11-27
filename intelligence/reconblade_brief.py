@@ -158,6 +158,16 @@ class ReconBladeBrief:
             fix = v["remediation"] or kb["fix"]
             nxt = f"Add the header and re-check with `revenant {self.target}` or curl -I."
             blast = "users of the site via the weakness this header prevents"
+        elif v["severity"] == "INFO":
+            # Informational notes (e.g. "Technologies Detected") are context, not a
+            # weakness — describe them neutrally instead of using the vuln template.
+            what = (v["description"] or v["title"]).strip() or "Informational observation."
+            why = ("Informational only — not a vulnerability by itself. Context like "
+                   "detected technologies or versions narrows what an attacker would try next.")
+            fix = v["remediation"] or ("No fix required. Reduce information disclosure "
+                                       "(version banners, verbose headers) if the detail is sensitive.")
+            nxt = "Record for context; no remediation needed unless it reveals something sensitive."
+            blast = "none on its own; it only informs later steps"
         else:
             kb = triage_kb.finding_info(v["cwe"], v["owasp_category"], text)
             what = kb["plain_explanation"]
@@ -166,10 +176,13 @@ class ReconBladeBrief:
             nxt = kb["next_step"]
             blast = kb.get("blast", triage_kb._GENERIC_FINDING["blast"])
 
-        causal = (
-            f"If you exploit this at `{where}` -> {why.rstrip('.').lower()}; "
-            f"downstream blast radius: {blast}."
-        )
+        if v["severity"] == "INFO":
+            causal = f"Informational — no direct exploit; blast radius: {blast}."
+        else:
+            causal = (
+                f"If you exploit this at `{where}` -> {why.rstrip('.').lower()}; "
+                f"downstream blast radius: {blast}."
+            )
         return {
             "title": v["title"],
             "severity": v["severity"],
