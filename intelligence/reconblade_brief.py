@@ -116,11 +116,11 @@ class ReconBladeBrief:
         for e in brief["entries"]:
             lines.extend([
                 f"### [{e['severity']}] {e['title']}",
-                f"- **What it is**     : {e['what_it_is']}",
-                f"- **Why it matters** : {e['why_it_matters']}",
-                f"- **Fix**            : {e['fix']}",
-                f"- **Next step**      : {e['next_step']}",
-                f"- **If you do it**   : {e['if_you_do_it']}",
+                f"- **What it is**: {e['what_it_is']}",
+                f"- **Why it matters**: {e['why_it_matters']}",
+                f"- **Fix**: {e['fix']}",
+                f"- **Next step**: {e['next_step']}",
+                f"- **If you do it**: {e['if_you_do_it']}",
                 "",
             ])
         return "\n".join(lines)
