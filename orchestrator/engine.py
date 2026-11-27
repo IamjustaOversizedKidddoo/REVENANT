@@ -6,25 +6,63 @@ updating the shared blackboard state, and enforcing scope boundaries at Layer 2.
 
 from __future__ import annotations
 
+import importlib
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 from control_plane.schemas.scope import ScopeEngine, ScopeManifest
-from orchestrator.agents.ai_redteam_agent import AiRedTeamAgent
-from orchestrator.agents.api_agent import ApiAgent
 from orchestrator.agents.base_agent import BaseAgent
-from orchestrator.agents.cloud_agent import CloudAgent
-from orchestrator.agents.code_agent import CodeAgent
-from orchestrator.agents.crawl_agent import CrawlAgent
-from orchestrator.agents.dast_agent import DastAgent
-from orchestrator.agents.identity_agent import IdentityAgent
-from orchestrator.agents.mobile_agent import MobileAgent
-from orchestrator.agents.purple_agent import PurpleAgent
-from orchestrator.agents.recon_agent import ReconAgent
-from orchestrator.agents.triage_agent import TriageAgent
-from orchestrator.agents.web_agent import WebAgent
 from orchestrator.blackboard import Blackboard, BlackboardEvent, EventType
 
 logger = logging.getLogger("revenant.orchestrator")
+
+
+def _agent(module: str, cls: str) -> Callable[[], BaseAgent]:
+    """Return a thunk that imports and constructs an agent only when first needed.
+
+    Agent modules are heavy (each pulls in its domain's adapters), so we import
+    lazily: a `recon` run never imports the cloud/identity/malware stacks.
+    """
+    return lambda: getattr(importlib.import_module(f"orchestrator.agents.{module}"), cls)()
+
+
+# profile agent-name -> lazy constructor. Keys match MissionProfile.active_agents.
+AGENT_REGISTRY: Dict[str, Callable[[], BaseAgent]] = {
+    "recon": _agent("recon_agent", "ReconAgent"),
+    "crawl": _agent("crawl_agent", "CrawlAgent"),
+    "web": _agent("web_agent", "WebAgent"),
+    "dast": _agent("dast_agent", "DastAgent"),
+    "api": _agent("api_agent", "ApiAgent"),
+    "code": _agent("code_agent", "CodeAgent"),
+    "cloud": _agent("cloud_agent", "CloudAgent"),
+    "identity": _agent("identity_agent", "IdentityAgent"),
+    "ai": _agent("ai_redteam_agent", "AiRedTeamAgent"),
+    "ai-redteam": _agent("ai_redteam_agent", "AiRedTeamAgent"),
+    "mobile": _agent("mobile_agent", "MobileAgent"),
+    "purple": _agent("purple_agent", "PurpleAgent"),
+    "triage": _agent("triage_agent", "TriageAgent"),
+    "kubernetes": _agent("kubernetes_agent", "KubernetesAgent"),
+    "forensics": _agent("forensics_agent", "ForensicsAgent"),
+    "malware": _agent("malware_agent", "MalwareAgent"),
+    "firmware": _agent("firmware_agent", "FirmwareAgent"),
+}
+
+# Swarm built when no explicit agents/profile are supplied (preserves prior behavior).
+DEFAULT_AGENTS: List[str] = [
+    "recon", "crawl", "web", "dast", "api", "code",
+    "cloud", "identity", "ai", "mobile", "purple", "triage",
+]
+
+
+def build_agents(active_agents: List[str]) -> List[BaseAgent]:
+    """Instantiate only the named agents, in order, skipping unknown names."""
+    agents: List[BaseAgent] = []
+    for name in active_agents:
+        factory = AGENT_REGISTRY.get(str(name).lower().strip())
+        if factory is None:
+            logger.warning("Unknown agent '%s' requested; skipping.", name)
+            continue
+        agents.append(factory())
+    return agents
 
 
 class Orchestrator:
@@ -34,22 +72,16 @@ class Orchestrator:
         self,
         blackboard: Optional[Blackboard] = None,
         agents: Optional[List[BaseAgent]] = None,
+        active_agents: Optional[List[str]] = None,
     ):
         self.blackboard = blackboard or Blackboard()
-        self.agents: List[BaseAgent] = agents or [
-            ReconAgent(),
-            CrawlAgent(),
-            WebAgent(),
-            DastAgent(),
-            ApiAgent(),
-            CodeAgent(),
-            CloudAgent(),
-            IdentityAgent(),
-            AiRedTeamAgent(),
-            MobileAgent(),
-            PurpleAgent(),
-            TriageAgent(),
-        ]
+        if agents is not None:
+            self.agents: List[BaseAgent] = agents
+        else:
+            self.agents = build_agents(active_agents or DEFAULT_AGENTS)
+            if not self.agents:
+                # Every requested agent was unknown; fall back to the full default swarm.
+                self.agents = build_agents(DEFAULT_AGENTS)
 
     def register_agent(self, agent: BaseAgent) -> None:
         """Register an additional specialist agent into the swarm."""

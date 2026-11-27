@@ -8,16 +8,51 @@ version = "2.0.0"
 description = "REVENANT — Full-Spectrum Autonomous AI Red Teaming & Security Operations Platform"
 readme = "README.md"
 requires-python = ">=3.11"
+# Tier 0 (core CLI): a near-zero footprint. Only pydantic + requests, so
+# `revenant scan` and the native fuzzers work with no infra and no Docker.
 dependencies = [
     "pydantic>=2.7.0",
+    "requests>=2.31.0",
 ]
 
 [project.optional-dependencies]
+# Tier 1 (API server): `pip install revenant[api]` then `revenant serve`.
+api = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+]
+# Convenience aggregate of every runtime extra.
+all = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.29.0",
+]
 dev = [
     "pytest>=8.0.0",
     "pytest-asyncio>=0.23.0",
 ]
 
+# `revenant` becomes a real command on PATH after `pip install -e .` / `pipx install .`.
+[project.scripts]
+revenant = "control_plane.cli:main"
+
+# Package discovery across the repo's top-level packages (control_plane lives under
+# the hyphenated control-plane/ dir, so it needs a second search root).
+[tool.setuptools.packages.find]
+where = [".", "control-plane"]
+include = ["orchestrator*", "adapters*", "reporting*", "control_plane*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = [".", "control-plane"]
+# The `hypothesis` and `schemathesis` pytest plugins autoload at startup and import
+# hypothesis._native, a compiled DLL that Windows Application Control blocks, which
+# crashes ALL test collection. No test in this suite uses either library directly
+# (the only "schemathesis" reference is REVENANT's own SchemathesisAdapter class),
+# so we disable just those two plugins. pytest-asyncio and anyio stay enabled.
+addopts = "-p no:hypothesispytest -p no:schemathesis"
+# `live` tests drive real external binaries / OS telemetry (trufflehog, Atomic Red
+# Team, etc.) and need those tools runnable on the host. Run the self-contained
+# suite with `pytest -m "not live"`; run everything (needs the real tools) with `pytest`.
+markers = [
+    "live: exercises a real external tool or OS telemetry; requires that tool installed and executable on the host",
+]

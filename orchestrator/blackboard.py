@@ -8,6 +8,8 @@ Supports durable SQLite persistence and state rehydration across process restart
 from __future__ import annotations
 
 import json
+import logging
+import os
 import sqlite3
 import threading
 import uuid
@@ -18,6 +20,8 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
 from control_plane.schemas.models import Finding, HostAsset
+
+logger = logging.getLogger("revenant.blackboard")
 
 
 class EventType(str, Enum):
@@ -294,3 +298,36 @@ class Blackboard:
 
 # Alias for stigmergic blackboard terminology
 StigmergicBlackboard = Blackboard
+
+
+def blackboard_from_env(campaign_id: Optional[str] = None) -> Blackboard:
+    """Build a Blackboard whose persistence backend is chosen by environment.
+
+    One env var scales mission state from a laptop to the appliance, no code change:
+
+      REVENANT_STATE=memory   (default) ephemeral in-process state — lightest, no files.
+      REVENANT_STATE=sqlite             durable SQLite at REVENANT_DB_PATH
+                                        (default ./evidence/revenant_state.db); survives
+                                        restarts and rehydrates on load.
+      REVENANT_STATE=postgres           reserved for the Tier-2 Docker appliance worker;
+                                        unavailable from the core CLI, so it falls back to
+                                        SQLite with a warning rather than failing a run.
+    """
+    state = (os.environ.get("REVENANT_STATE") or "memory").lower().strip()
+
+    if state in ("", "memory", "none"):
+        return Blackboard(campaign_id=campaign_id)
+
+    if state == "postgres":
+        logger.warning(
+            "REVENANT_STATE=postgres requires the appliance worker; "
+            "using durable SQLite locally instead."
+        )
+        state = "sqlite"
+
+    if state == "sqlite":
+        db_path = os.environ.get("REVENANT_DB_PATH") or "evidence/revenant_state.db"
+        return Blackboard(campaign_id=campaign_id, db_path=db_path)
+
+    logger.warning("Unknown REVENANT_STATE=%r; defaulting to in-memory state.", state)
+    return Blackboard(campaign_id=campaign_id)

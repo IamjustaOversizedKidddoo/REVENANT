@@ -7,9 +7,14 @@ Layer 1-3 scope enforcement, mission profile selection, and automatic multi-form
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import os
+import shutil
+import socket
 import sys
+import threading
+import time
 from pathlib import Path
 from typing import List, Optional
 
@@ -17,7 +22,7 @@ from control_plane.profiles import get_profile, list_profiles, validate_profile_
 from control_plane.schemas.models import Finding
 from control_plane.schemas.scope import ScopeEngine, ScopeManifest, ScopeViolationError
 from orchestrator.asm_daemon import ASMDaemon
-from orchestrator.blackboard import Blackboard, EventType
+from orchestrator.blackboard import Blackboard, EventType, blackboard_from_env
 from orchestrator.engine import Orchestrator
 from orchestrator.remediation.remediation_engine import RemediationEngine
 from reporting.generator import ReportGenerator
@@ -70,12 +75,16 @@ def run_mission(
     if not valid:
         print(f"[-] [Profile Validation Warning] {reason}", file=sys.stderr)
 
-    # 3. Initialize Blackboard & Orchestrator
-    blackboard = Blackboard()
-    orchestrator = Orchestrator(blackboard=blackboard)
+    # 3. Initialize Blackboard & Orchestrator.
+    #    State backend is env-selected (in-memory by default; SQLite/appliance when set),
+    #    and only the profile's declared agents are instantiated — not all 16.
+    blackboard = blackboard_from_env()
+    orchestrator = Orchestrator(blackboard=blackboard, active_agents=profile.active_agents)
 
     if verbose:
-        print(f"[*] Starting stigmergic multi-agent swarm [{profile.name}]...")
+        print(f"[*] Active state backend:  {os.environ.get('REVENANT_STATE', 'memory')}")
+        print(f"[*] Starting stigmergic multi-agent swarm [{profile.name}] "
+              f"({len(orchestrator.agents)} agents)...")
 
     # 4. Run Campaign Loop
     summary = orchestrator.start_campaign(
@@ -148,6 +157,112 @@ def run_mission(
     return 0
 
 
+# Key external tool per domain, used by `revenant doctor` to report real capability.
+# The native fuzzers (DAST, AI probe) need no binary, so those domains are always ready.
+TOOL_MATRIX = {
+    "recon": ["subfinder", "nmap", "ffuf", "httpx"],
+    "web / dast": ["nuclei", "katana", "semgrep"],
+    "code / sast": ["semgrep", "gitleaks", "trufflehog"],
+    "cloud": ["trivy", "prowler", "checkov"],
+    "kubernetes": ["kubescape", "kube-bench"],
+    "identity (AD)": ["nxc", "netexec", "bloodhound-python", "certipy"],
+    "forensics": ["vol", "velociraptor"],
+    "malware": ["yara", "capa", "binwalk"],
+    "mobile": ["mobsfscan"],
+}
+
+
+def cmd_doctor() -> int:
+    """Report what REVENANT can actually do on this host: tools, deps, state backend."""
+    print("=" * 64)
+    print("  REVENANT DOCTOR - host capability probe")
+    print("=" * 64)
+
+    # 1. External security tools (present on PATH)
+    print("\n[ External tools on PATH ]")
+    for domain, tools in TOOL_MATRIX.items():
+        found = [t for t in tools if shutil.which(t)]
+        mark = "+" if found else "-"
+        detail = ", ".join(found) if found else "none found"
+        print(f"  [{mark}] {domain:<16} {detail}")
+    print("  [+] native fuzzers      dast-fuzzer, ai-probe (no binary required)")
+
+    # 2. Optional Python runtime deps
+    print("\n[ Python runtime extras ]")
+    for mod, label in [("requests", "core HTTP (scan)"),
+                       ("fastapi", "API server"),
+                       ("uvicorn", "API server")]:
+        ok = importlib.util.find_spec(mod) is not None
+        print(f"  [{'+' if ok else '-'}] {mod:<16} {label}")
+
+    # 3. State backend
+    state = os.environ.get("REVENANT_STATE", "memory")
+    print("\n[ Mission state backend ]")
+    print(f"  REVENANT_STATE = {state}"
+          f"{'  (ephemeral - set to sqlite for durability)' if state == 'memory' else ''}")
+
+    # 4. Profile readiness
+    print("\n[ Profile readiness ]  (native capability always available)")
+    for p in list_profiles():
+        print(f"  - {p.name}")
+    print("\n" + "=" * 64)
+    print("  Tip: missing tools can run containerized at work — core install stays light.")
+    print("=" * 64)
+    return 0
+
+
+def _find_lab_server() -> Optional[Path]:
+    """Locate the bundled sanctioned vulnerability lab server, if present."""
+    here = Path(__file__).resolve()
+    for root in list(here.parents):
+        candidate = root / "tests" / "sanctioned_lab_server.py"
+        if candidate.exists():
+            return candidate
+    return None
+
+
+def _port_open(host: str, port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(0.25)
+        return s.connect_ex((host, port)) == 0
+
+
+def cmd_quickstart(output_dir: str = "evidence/quickstart") -> int:
+    """Zero-config demo: boot the bundled vuln lab and run a web-dast mission against it."""
+    host, port = "127.0.0.1", 3000
+    print("[*] REVENANT quickstart — booting the sanctioned local lab and scanning it.\n")
+
+    if not _port_open(host, port):
+        lab = _find_lab_server()
+        if lab is None:
+            print("[-] Bundled lab server not found (tests/sanctioned_lab_server.py).",
+                  file=sys.stderr)
+            print("    Point `revenant scan` at your own authorized target instead.",
+                  file=sys.stderr)
+            return 1
+        spec = importlib.util.spec_from_file_location("sanctioned_lab_server", lab)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        server = module.ThreadedHTTPServer((host, port), module.LabServerHandler)
+        threading.Thread(target=server.serve_forever, daemon=True).start()
+        for _ in range(40):
+            if _port_open(host, port):
+                break
+            time.sleep(0.2)
+        print(f"[+] Lab server listening on http://{host}:{port}\n")
+    else:
+        print(f"[+] Reusing lab server already on http://{host}:{port}\n")
+
+    scope = ScopeManifest(allowed_hosts=["127.0.0.1", "localhost"],
+                          allowed_cidrs=["127.0.0.1/32"])
+    return run_mission(
+        target=f"http://{host}:{port}",
+        scope=scope,
+        profile_name="web-dast",
+        output_dir=output_dir,
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construct multi-command CLI parser."""
     parser = argparse.ArgumentParser(
@@ -173,6 +288,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     # 2. PROFILES SUBCOMMAND
     subparsers.add_parser("profiles", help="List available pre-configured assessment mission profiles")
+
+    # 2b. DOCTOR SUBCOMMAND — host capability probe
+    subparsers.add_parser("doctor", help="Probe host for installed tools, deps, and state backend")
+
+    # 2c. QUICKSTART SUBCOMMAND — zero-config demo against the bundled lab
+    qs_parser = subparsers.add_parser("quickstart", help="Boot the bundled vuln lab and run a demo web-dast scan")
+    qs_parser.add_argument("--output-dir", default="evidence/quickstart", help="Report output directory")
 
     # 3. REMEDIATE SUBCOMMAND
     remed_parser = subparsers.add_parser("remediate", help="Generate automated remediation code from a JSON findings export")
@@ -201,6 +323,14 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main():
+    # Force UTF-8 output so the banner/box-drawing and em-dashes never crash or mojibake
+    # on a Windows cp1252 console or when stdout is piped/redirected.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
     parser = build_parser()
     args = parser.parse_args()
 
@@ -219,6 +349,14 @@ def main():
                 print(f"      - {cap}")
         print("\n" + "=" * 64)
         sys.exit(0)
+
+    # Case A2: Subcommand DOCTOR
+    elif args.subcommand == "doctor":
+        sys.exit(cmd_doctor())
+
+    # Case A3: Subcommand QUICKSTART
+    elif args.subcommand == "quickstart":
+        sys.exit(cmd_quickstart(output_dir=args.output_dir))
 
     # Case B: Subcommand REMEDIATE
     elif args.subcommand == "remediate":

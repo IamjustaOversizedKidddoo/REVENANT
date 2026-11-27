@@ -77,6 +77,7 @@ class TestGitleaksAdapter:
         assert f.code_location.start_line == 14
         assert "AKI...PLE" in f.code_location.snippet
 
+    @pytest.mark.live
     def test_live_scan_on_fixture(self, repo_scope: ScopeManifest):
         adapter = GitleaksAdapter()
         if not adapter.is_installed():
@@ -149,6 +150,7 @@ class TestTruffleHogAdapter:
         assert aws_finding.verified_valid is True
         assert aws_finding.severity == Severity.CRITICAL
 
+    @pytest.mark.live
     def test_live_scan_on_fixture(self, repo_scope: ScopeManifest):
         adapter = TruffleHogAdapter()
         if not adapter.is_installed():
