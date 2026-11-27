@@ -32,9 +32,11 @@ from reporting.generator import ReportGenerator
 try:
     from intelligence.analyst import AnalystNarrator
     from intelligence.llm_client import LlmClient
+    from intelligence.reconblade_brief import ReconBladeBrief
 except Exception:  # pragma: no cover - only if intelligence/ is absent
     AnalystNarrator = None  # type: ignore
     LlmClient = None  # type: ignore
+    ReconBladeBrief = None  # type: ignore
 
 
 def run_mission(
@@ -175,6 +177,17 @@ def run_mission(
             if verbose:
                 print(f"[!] AI Analyst enrichment skipped: {exc}")
 
+    # ReconBLADE-style findings brief — purely additive, writes a NEW file only,
+    # never touches the existing reports. Non-fatal.
+    if findings and ReconBladeBrief is not None:
+        try:
+            ReconBladeBrief(findings=findings, target=target).run_and_save(str(out_path))
+            if verbose:
+                print("[+] ReconBLADE Brief: findings_brief.md written.")
+        except Exception as exc:
+            if verbose:
+                print(f"[!] ReconBLADE brief skipped: {exc}")
+
     if verbose:
         print("-" * 64)
         print(f"[+] Mission artifacts saved to: {out_path.resolve()}")
@@ -280,6 +293,9 @@ def cmd_doctor() -> int:
         print(f"  [{'+' if client.available() else '-'}] planner/analyst  {ready}")
     else:
         print("  [-] intelligence layer not importable (deterministic fallback only)")
+    brief_ok = ReconBladeBrief is not None
+    print(f"  [{'+' if brief_ok else '-'}] findings brief   "
+          f"{'ReconBLADE-style triage (always on; LLM optional)' if brief_ok else 'unavailable'}")
 
     # 3. State backend
     state = os.environ.get("REVENANT_STATE", "memory")
@@ -391,6 +407,34 @@ def cmd_analyze(findings_file: str, output_dir: Optional[str] = None) -> int:
     return 0
 
 
+def cmd_brief(findings_file: str, output_dir: Optional[str] = None) -> int:
+    """Render a ReconBLADE-style prioritized brief from an existing findings export."""
+    if ReconBladeBrief is None:
+        print("[-] Intelligence layer unavailable in this install.", file=sys.stderr)
+        return 1
+    f_path = Path(findings_file)
+    if not f_path.exists():
+        print(f"[-] Findings file not found: {f_path}", file=sys.stderr)
+        return 1
+
+    raw = json.loads(f_path.read_text(encoding="utf-8"))
+    target = raw.get("target") if isinstance(raw, dict) else None
+    findings = _load_findings_file(f_path)
+    out_dir = output_dir or str(f_path.parent)
+
+    brief_obj = ReconBladeBrief(findings=findings, target=target)
+    brief = brief_obj.run_and_save(out_dir)
+
+    print("=" * 64)
+    print("  REVENANT — ReconBLADE-style Findings Brief")
+    print("=" * 64)
+    print(f"[*] Findings: {len(findings)}  (mode: {brief.get('mode', 'fallback')})")
+    print(f"[*] Written to: {Path(out_dir).resolve()}/findings_brief.md, findings_brief.json")
+    print("-" * 64)
+    print(brief_obj.render_markdown(brief))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construct multi-command CLI parser."""
     parser = argparse.ArgumentParser(
@@ -439,6 +483,11 @@ def build_parser() -> argparse.ArgumentParser:
     analyze_parser.add_argument("findings_file", help="Path to report.json (or a raw findings JSON list)")
     analyze_parser.add_argument("--output-dir", default=None, help="Where to write analysis.{md,json} (default: alongside the input)")
 
+    # 2e. BRIEF SUBCOMMAND — ReconBLADE-style prioritized findings brief
+    brief_parser = subparsers.add_parser("brief", help="Render a ReconBLADE-style prioritized brief from a findings JSON")
+    brief_parser.add_argument("findings_file", help="Path to report.json (or a raw findings JSON list)")
+    brief_parser.add_argument("--output-dir", default=None, help="Where to write findings_brief.{md,json} (default: alongside the input)")
+
     # 3. REMEDIATE SUBCOMMAND
     remed_parser = subparsers.add_parser("remediate", help="Generate automated remediation code from a JSON findings export")
     remed_parser.add_argument("findings_file", help="Path to JSON file containing findings")
@@ -459,7 +508,7 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-SUBCOMMANDS = {"scan", "profiles", "doctor", "quickstart", "analyze", "remediate", "asm", "serve"}
+SUBCOMMANDS = {"scan", "profiles", "doctor", "quickstart", "analyze", "brief", "remediate", "asm", "serve"}
 
 
 def run_bare_target(argv: List[str]) -> int:
@@ -530,6 +579,10 @@ def main():
     # Case A4: Subcommand ANALYZE — AI Analyst / Narrator
     elif args.subcommand == "analyze":
         sys.exit(cmd_analyze(args.findings_file, output_dir=args.output_dir))
+
+    # Case A5: Subcommand BRIEF — ReconBLADE-style findings brief
+    elif args.subcommand == "brief":
+        sys.exit(cmd_brief(args.findings_file, output_dir=args.output_dir))
 
     # Case B: Subcommand REMEDIATE
     elif args.subcommand == "remediate":
